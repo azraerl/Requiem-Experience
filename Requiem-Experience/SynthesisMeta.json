@@ -1,0 +1,8 @@
+{
+  "Nickname": "RequiemExperiencePatcher",
+  "Visibility": "Exclude",
+  "OneLineDescription": "Patcher for Experience mod, desgined for Requiem",
+  "LongDescription": "Patcher for Experience mod, desgined for Requiem. Allows to patch quests types and generate csv files for races.",
+  "PreferredAutoVersioning": "Default",
+  "RequiredMods": []
+}

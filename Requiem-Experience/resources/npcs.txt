@@ -1,0 +1,21 @@
+## Way to aggregate levels
+Mode: Mean
+
+## NPC EditorIDs ignore list
+Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
+Ignore: callenhorker   ;level is out of place
+Ignore: DLC2Miraak.*   ;his human form spoils humanoids
+Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
+Ignore: Summon.*       ;levels of summonned entities shouldn't affect wild XP
+
+## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
+Groups: Atronachs = AtronachFrost,AtronachStorm,AtronachFlame
+Groups: StopRacism = Argonian,Breton,DarkElf,HighElf,Imperial,Khajiit,Nord,Orc,Redguard,WoodElf
+
+## Overrides for particular race EditorIDs
+Override: DLC2MiraakRace = 250 ; He is tougher than he looks
+Override: FoxRace = 1          ; Fox race is being abused by quest entities
+Override: ChickenRace = 1      ; Chicken as well
+
+## Uncomment below to enable debugging
+debug
