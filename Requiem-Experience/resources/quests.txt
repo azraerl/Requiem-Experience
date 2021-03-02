@@ -1,5 +1,5 @@
 ## Uncomment below to enable debugging
-debug
+#debug
 
 ## Requiem installation quest = no XP
 REQ_Quest_Installation=Misc

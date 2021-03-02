@@ -18,4 +18,4 @@ Override: FoxRace = 1          ; Fox race is being abused by quest entities
 Override: ChickenRace = 1      ; Chicken as well
 
 ## Uncomment below to enable debugging
-debug
+#debug

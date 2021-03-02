@@ -182,6 +182,8 @@ namespace RequiemExperience
             }
             var averageMode = racesConfig.Where(x => x.Length >= 2 && x[0].Equals("mode", StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x[1].Trim().ToLowerInvariant()).DefaultIfEmpty("median").First();
+            var raceOutFile = racesConfig.Where(x => x.Length >= 2 && x[0].Equals("file", StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => x[1].Trim().ToLowerInvariant()).DefaultIfEmpty("DefaultRaces").First();
             var racesGroups = racesConfig
                 .Where(x => x.Length >= 3 && x[0].Equals("Groups", StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
@@ -287,8 +289,8 @@ namespace RequiemExperience
 
             Console.WriteLine($@"Creating folder: {outputPath}");
             Directory.CreateDirectory(outputPath);
-            Console.WriteLine($@"Writing races patch: {outputPath}Races\Requiem.csv");
-            File.WriteAllText($@"{outputPath}Races\Requiem.csv", races.ToString());
+            Console.WriteLine($@"Writing races patch: {outputPath}Races\{raceOutFile}.csv");
+            File.WriteAllText($@"{outputPath}Races\{raceOutFile}.csv", races.ToString());
             if (quests != null)
             {
                 Console.WriteLine($@"Writing debug file: {outputPath}quests.csv");
