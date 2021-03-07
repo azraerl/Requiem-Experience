@@ -5,11 +5,13 @@
 REQ_Quest_Installation=Misc
 
 ## Live Another Life = no XP
-MQ101=Misc
 ARTHLALChargenQuest=Misc
+MQ101=Misc
+ARTHLALRumorsOfWarQuest=None ;Helgen quest which kicks off main story = minimal XP
+MQ102=None ;Whiterun travel quest = minimal XP
 
-## Helgen quest which kicks off main story = minimal XP
-ARTHLALRumorsOfWarQuest=None
+## SunHelm activation quest (type 8)
+_SHStartPrompt=Misc
 
 ## Courier missives, minimal / small XP for all
 _M_Quest.*CourierLetterLow=None
