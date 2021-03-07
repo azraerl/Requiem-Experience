@@ -4,6 +4,8 @@ Mode: Mean
 ## NPC EditorIDs ignore list
 Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
 Ignore: callenhorker   ;level is out of place
+Ignore: IDB_Actor_.*   ;some high-level crab
+Ignore: RWT_SirCrabalot;unique high-level crab... wish it had separate race
 Ignore: DLC2Miraak.*   ;his human form spoils humanoids
 Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
 Ignore: Summon.*       ;levels of summonned entities shouldn't affect wild XP
