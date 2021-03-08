@@ -9,6 +9,7 @@ Ignore: RWT_SirCrabalot;unique high-level crab... wish it had separate race
 Ignore: DLC2Miraak.*   ;his human form spoils humanoids
 Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
 Ignore: Summon.*       ;levels of summonned entities shouldn't affect wild XP
+Ignore: IDB_EncSlaughterfishGiant.* ;gigantic slaughterfish, two of them
 
 ## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
 Groups: Atronachs = AtronachFrost,AtronachStorm,AtronachFlame
