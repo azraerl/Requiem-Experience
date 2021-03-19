@@ -85,7 +85,8 @@ namespace RequiemExperience
             var outputPath = $@"{state.Settings.DataFolderPath}\SKSE\Plugins\Experience\";
             var questConfig = RequiemExperience.Properties.Resources.quests.Split('\n', StringSplitOptions.TrimEntries)
                 .Where(x => !x.StartsWith('#') && x.Length != 0)
-                .Select(x => x.Split(new char[] { '=', ';', ':' }, StringSplitOptions.RemoveEmptyEntries));
+                .Select(x => x.Split(new char[] {';'})[0].Trim())
+                .Select(x => x.Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries));
             var questOverride = questConfig
                 .Where(x => x.Length >= 2)
                 .ToDictionary(
@@ -105,7 +106,7 @@ namespace RequiemExperience
             }
             quests?.Append("EditorID;Type;Name;Stages;Stages Text\r\n");
 
-            Console.WriteLine($@"Processing Quests Patch: debug is {quests != null}, overrides count is {questOverride.Count}, conditions count is {questCond.Count}.");
+            Console.WriteLine($"Processing Quests Patch:\r\n + Overrides count is {questOverride.Count}\r\n + Conditions count is {questCond.Count}\r\n + Debug = {quests != null}");
 
             FormList? radiantExcl = null;
             if ( questCond.Count > 0 ) { 
@@ -172,13 +173,14 @@ namespace RequiemExperience
 
             var racesConfig = RequiemExperience.Properties.Resources.npcs.Split('\n', StringSplitOptions.TrimEntries)
                 .Where(x => !x.StartsWith('#') && x.Length != 0)
-                .Select(x => x.Split(new char[] { '=', ';', ':' }, StringSplitOptions.RemoveEmptyEntries));
+                .Select(x => x.Split(new char[] { ';' })[0].Trim())
+                .Select(x => x.Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries));
 
             StringBuilder? npcs = null;
             if (racesConfig.Where(x => x.Length >= 1 && x[0].Equals("debug", StringComparison.InvariantCultureIgnoreCase)).Any())
             {
                 npcs = new StringBuilder();
-                npcs?.Append("NPC;Race;AtkRace;Level;Comments\r\n");
+                npcs?.Append("NPC;Race;Level;Comments\r\n");
             }
             var averageMode = racesConfig.Where(x => x.Length >= 2 && x[0].Equals("mode", StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x[1].Trim().ToLowerInvariant()).DefaultIfEmpty("median").First();
@@ -193,6 +195,10 @@ namespace RequiemExperience
             var ignoreableNPCs = racesConfig
                 .Where(x => x.Length >= 2 && x[0].Equals("Ignore", StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x[1].Trim()).ToList();
+            var uniqueNPCs = racesConfig
+                .Where(x => x.Length >= 2 && x[0].Equals("Unique", StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => x[1].Trim()).ToList();
+
             var overrideRaces = racesConfig
                 .Where(x => x.Length >= 2 && x[0].Equals("Override", StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
@@ -200,7 +206,7 @@ namespace RequiemExperience
                     x => int.TryParse(x[2].Trim(), out var res) ? res : 0
                 );
 
-            Console.WriteLine($@"Processing NPC Races: averaging more is {averageMode}, debug is {npcs != null}, groups count is {racesGroups.Count}, ignorable NPCs count is {ignoreableNPCs.Count}, overrides count is {overrideRaces.Count}.");
+            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {averageMode}\r\n + Groups count is {racesGroups.Count}\r\n + Ignorable NPCs count is {ignoreableNPCs.Count}\r\n + Unique NPCs count is {uniqueNPCs.Count}\r\n + Race XP overrides count is {overrideRaces.Count}\r\n + Debug = {npcs != null}");
 
             var races = new StringBuilder();
             var racesLevels = new Dictionary<string, ICollection<double>>();
@@ -222,13 +228,47 @@ namespace RequiemExperience
 
                 string? key = null;
                 string? val = null;
-                IRaceGetter? race = null, arace = null;
+                string? EditorID = null;
+                IRaceGetter? race = null;
                 var ignore = npc.EditorID == null
                     || ignoreableNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
-                npc.AttackRace.TryResolve(state.LinkCache, out arace);
+                var unique = npc.EditorID == null
+                    || uniqueNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
+                //npc.AttackRace.TryResolve(state.LinkCache, out arace);
                 if (npc.Race.TryResolve(state.LinkCache, out race) && !ignore)
                 {
-                    raceGroupLookup(racesGroups, race.EditorID, out key, out val);
+                    EditorID = race.EditorID;
+                    if (unique)
+                    {
+                        var otherFormLists = state.LoadOrder.PriorityOrder.WinningOverrides<IFormListGetter>()
+                            .Where(x => x.ContainedFormLinks.Any(y => race.FormKey == y.FormKey))
+                            .Select(x => state.PatchMod.FormLists.GetOrAddAsOverride(x));
+
+                        EditorID = EditorID + "__" + npc.EditorID;
+                        var newRace = state.PatchMod.Races.AddNew(EditorID);
+                        newRace.DeepCopyIn(race, new Race.TranslationMask(defaultOn: true)
+                        {
+                            EditorID = false
+                        });
+                        newRace.MorphRace = race.MorphRace.FormKeyNullable ?? race.FormKey;
+                        newRace.AttackRace = race.AttackRace.FormKeyNullable ?? race.FormKey;
+                        newRace.ArmorRace = race.AttackRace.FormKeyNullable ?? race.FormKey;
+                        var patchN = state.PatchMod.Npcs.GetOrAddAsOverride(npc);
+                        patchN.Race = newRace;
+                        foreach (var otherFormList in otherFormLists)
+                        {
+                            var formLinks = otherFormList.ContainedFormLinks;
+                            if (formLinks.Any(x => x.FormKey == race.FormKey))
+                            {
+                                otherFormList.Items.Add(newRace);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        raceGroupLookup(racesGroups, EditorID, out key, out val);
+                    }
+
                     if (key != null && racesGroups.TryGetValue(key, out var group))
                     {
                         if (!racesLevels.TryGetValue(key + val, out var levels))
@@ -240,17 +280,17 @@ namespace RequiemExperience
                             levels.Add(level);
                         }
                     }
-                    else if (race.EditorID != null && racesLevels.TryGetValue(race.EditorID, out var levels))
+                    else if (EditorID != null && racesLevels.TryGetValue(EditorID, out var levels))
                     {
                         levels.Add(level);
                     }
-                    else if (race.EditorID != null)
+                    else if (EditorID != null)
                     {
-                        racesLevels.Add(race.EditorID, new List<double>() { level });
+                        racesLevels.Add(EditorID, new List<double>() { level });
                     }
                 }
-                npcs?.Append(npc.EditorID + "," + race?.EditorID + "," + arace?.EditorID + ","
-                    + level + "," + key + val + (ignore ? "ignored" : "") + "\r\n");
+                npcs?.Append(npc.EditorID + "," + EditorID + "," + level + ","
+                    + key + val + (ignore ? " ignored" : "") + (unique ? " unique" : "") + "\r\n");
             }
 
             foreach (var race in state.LoadOrder.PriorityOrder.WinningOverrides<IRaceGetter>())

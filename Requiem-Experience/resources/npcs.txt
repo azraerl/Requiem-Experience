@@ -4,12 +4,40 @@ Mode: Mean
 ## NPC EditorIDs ignore list
 Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
 Ignore: callenhorker   ;level is out of place
-Ignore: IDB_Actor_.*   ;some high-level crab
-Ignore: RWT_SirCrabalot;unique high-level crab... wish it had separate race
-Ignore: DLC2Miraak.*   ;his human form spoils humanoids
+Ignore: DLC2Miraak.*   ;his human form spoils other humanoids
 Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
 Ignore: Summon.*       ;levels of summonned entities shouldn't affect wild XP
-Ignore: IDB_EncSlaughterfishGiant.* ;gigantic slaughterfish, two of them
+Ignore: MG05Messenger
+Ignore: DA14Summoned
+Ignore: DA14Sanguine
+Ignore: DA07VoiceMehrunesDagon
+Ignore: EncDremora.*
+Ignore: DLC1nVampireCorruptedShade
+Ignore: JRDumzbtharNPC
+Ignore: .*[Tt]emplate.*
+Ignore: .*[Dd]ummy.*
+Ignore: .*[Tt]est.*
+Ignore: TinyCenturion
+Ignore: DBM_Perk.*
+Ignore: DLC1Lvl.*
+
+## Unique NPC EditorIDs - their races will be duplicated, so custom XP can be applied
+## New Race EditorID is generated as "<race EditorID>__<npc EditorID>"
+Unique: RWT_SirCrabalot              ;unique high-level crab
+Unique: IDB_EncSlaughterfishGiant.*  ;gigantic slaughterfish, two of them
+Unique: IDB_Actor_MudcrabGigantic    ;some high-level crab
+Unique: IDB_AA000XarrianEncUniqueUlik;unique trolls
+Unique: AA000XarrianEncUniqueKruul   ;
+Unique: JRDLC01SoulCairnReaper       ;unique skeletons
+Unique: DLC01SoulCairnReaper         ;
+Unique: dunMS06PotemaSkeleton        ;
+Unique: IDB_AA000XarrianUniqueSnow   ;unique sabre cats
+Unique: MS06Potema                   ;Potema Wisp
+Unique: dunHalldirsBoss
+Unique: dunKatariahLvlPenitusOculatusLieutenant
+Unique: DBM_dunWindPassWindcallerSpiderBoss
+Unique: DLC2dunHorkerIslandEncHorker
+Unique: dunHunter.*
 
 ## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
 Groups: Atronachs = AtronachFrost,AtronachStorm,AtronachFlame
