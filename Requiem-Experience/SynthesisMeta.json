@@ -1,6 +1,6 @@
 {
   "Nickname": "Requiem-Experience",
-  "Visibility": "Exclude",
+  "Visibility": "Visible",
   "OneLineDescription": "Patcher for Experience mod, most suitable for Requiem",
   "LongDescription": "Patcher for Experience mod, desgined for Requiem. Generates Quest patch with quest type adjustments; generates races csv basing on load order and set of rules, if necessary creates unique duplicated races for unique NPCs",
   "PreferredAutoVersioning": "Default",
