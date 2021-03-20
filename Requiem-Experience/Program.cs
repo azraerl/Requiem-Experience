@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Runtime.Versioning;
 
-[assembly: SupportedOSPlatform("Windows7.0")]
 namespace RequiemExperience
 {
     public class Program
@@ -19,16 +18,9 @@ namespace RequiemExperience
         public static async Task<int> Main(string[] args)
         {
             return await SynthesisPipeline.Instance
+                .SetTypicalOpen(GameRelease.SkyrimSE, "Experience_QuestsPatch.esp")
                 .AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch)
-                .Run(args, new RunPreferences()
-                {
-                    ActionsForEmptyArgs = new RunDefaultPatcher()
-                    {
-                        IdentifyingModKey = "Experience_QuestsPatch.esp",
-                        TargetRelease = GameRelease.SkyrimSE,
-                        BlockAutomaticExit = true,
-                    }
-                });
+                .Run(args);
         }
 
         static int average(ICollection<double> levels, string mode)
@@ -82,7 +74,7 @@ namespace RequiemExperience
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            var outputPath = $@"{state.Settings.DataFolderPath}\SKSE\Plugins\Experience\";
+            var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience\";
             var questConfig = RequiemExperience.Properties.Resources.quests.Split('\n', StringSplitOptions.TrimEntries)
                 .Where(x => !x.StartsWith('#') && x.Length != 0)
                 .Select(x => x.Split(new char[] {';'})[0].Trim())
@@ -152,8 +144,8 @@ namespace RequiemExperience
                             cond.CompareOperator = CompareOperator.NotEqualTo;
                             cond.ComparisonValue = 1.0f;
                             FunctionConditionData func = new FunctionConditionData();
-                            func.Function = (ushort)ConditionData.Function.GetInCurrentLocFormList;
-                            func.ParameterOneRecord = radiantExcl;
+                            func.Function = ConditionData.Function.GetInCurrentLocFormList;
+                            func.ParameterOneRecord.SetTo(radiantExcl);
                             cond.Data = func;
                             alias.Conditions.Insert(1, cond);
                         }
@@ -229,13 +221,12 @@ namespace RequiemExperience
                 string? key = null;
                 string? val = null;
                 string? EditorID = null;
-                IRaceGetter? race = null;
                 var ignore = npc.EditorID == null
                     || ignoreableNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
                 var unique = npc.EditorID == null
                     || uniqueNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
                 //npc.AttackRace.TryResolve(state.LinkCache, out arace);
-                if (npc.Race.TryResolve(state.LinkCache, out race) && !ignore)
+                if (npc.Race.TryResolve(state.LinkCache, out var race) && !ignore)
                 {
                     EditorID = race.EditorID;
                     if (unique)
@@ -250,11 +241,11 @@ namespace RequiemExperience
                         {
                             EditorID = false
                         });
-                        newRace.MorphRace = race.MorphRace.FormKeyNullable ?? race.FormKey;
-                        newRace.AttackRace = race.AttackRace.FormKeyNullable ?? race.FormKey;
-                        newRace.ArmorRace = race.AttackRace.FormKeyNullable ?? race.FormKey;
+                        newRace.MorphRace.SetTo(!race.MorphRace.IsNull ? race.MorphRace : race.AsNullableLink());
+                        newRace.AttackRace.SetTo(!race.AttackRace.IsNull ? race.AttackRace : race.AsNullableLink());
+                        newRace.ArmorRace.SetTo(!race.AttackRace.IsNull ? race.AttackRace : race.AsNullableLink());
                         var patchN = state.PatchMod.Npcs.GetOrAddAsOverride(npc);
-                        patchN.Race = newRace;
+                        patchN.Race.SetTo(newRace);
                         foreach (var otherFormList in otherFormLists)
                         {
                             var formLinks = otherFormList.ContainedFormLinks;
