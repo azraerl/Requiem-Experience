@@ -144,7 +144,7 @@ namespace RequiemExperience
                             cond.CompareOperator = CompareOperator.NotEqualTo;
                             cond.ComparisonValue = 1.0f;
                             FunctionConditionData func = new FunctionConditionData();
-                            func.Function = ConditionData.Function.GetInCurrentLocFormList;
+                            func.Function = Condition.Function.GetInCurrentLocFormList;
                             func.ParameterOneRecord.SetTo(radiantExcl);
                             cond.Data = func;
                             alias.Conditions.Insert(1, cond);
