@@ -318,8 +318,8 @@ namespace RequiemExperience
                 }
             }
 
-            Console.WriteLine($@"Creating folder: {outputPath}");
-            Directory.CreateDirectory(outputPath);
+            Console.WriteLine($@"Creating folder: {outputPath}Races\");
+            Directory.CreateDirectory($@"{outputPath}Races\");
             Console.WriteLine($@"Writing races patch: {outputPath}Races\{raceOutFile}.csv");
             File.WriteAllText($@"{outputPath}Races\{raceOutFile}.csv", races.ToString());
             if (quests != null)
