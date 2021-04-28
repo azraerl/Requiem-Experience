@@ -7,6 +7,7 @@ Ignore: callenhorker   ;level is out of place
 Ignore: DLC2Miraak.*   ;his human form spoils other humanoids
 Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
 Ignore: Summon.*       ;levels of summonned entities shouldn't affect wild XP
+Ignore: EG_CONJ.*      ;same
 Ignore: MG05Messenger
 Ignore: DA14Summoned
 Ignore: DA14Sanguine
@@ -24,13 +25,21 @@ Ignore: DLC1Lvl.*
 ## Unique NPC EditorIDs - their races will be duplicated, so custom XP can be applied
 ## New Race EditorID is generated as "<race EditorID>__<npc EditorID>"
 Unique: RWT_SirCrabalot              ;unique high-level crab
-Unique: IDB_EncSlaughterfishGiant.*  ;gigantic slaughterfish, two of them
-Unique: IDB_Actor_MudcrabGigantic    ;some high-level crab
+Unique: .*SlaughterfishGiant.*       ;gigantic slaughterfish, two of them
+Unique: .*MudcrabGigantic            ;some high-level crab
+Unique: .*GorakTheTrollslayer
+Unique: .*JohnCleese
 Unique: IDB_AA000XarrianEncUniqueUlik;unique trolls
-Unique: AA000XarrianEncUniqueKruul   ;
+Unique: REQ_Actor_Ulik
+Unique: AA000XarrianEncUniqueKruul
+Unique: REQ_Actor_Kruul
+Unique: IDB_AA000XarrianUniqueThunder
+Unique: REQ_Actor_Thunder
+Unique: IDB_AA000XarrianUniqueRagnok
+Unique: REQ_Actor_Ragnok
 Unique: JRDLC01SoulCairnReaper       ;unique skeletons
-Unique: DLC01SoulCairnReaper         ;
-Unique: dunMS06PotemaSkeleton        ;
+Unique: DLC01SoulCairnReaper
+Unique: dunMS06PotemaSkeleton
 Unique: IDB_AA000XarrianUniqueSnow   ;unique sabre cats
 Unique: MS06Potema                   ;Potema Wisp
 Unique: dunHalldirsBoss
