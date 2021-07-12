@@ -56,6 +56,3 @@ Groups: StopRacism = Argonian,Breton,DarkElf,HighElf,Imperial,Khajiit,Nord,Orc,R
 Override: DLC2MiraakRace = 250 ; He is tougher than he looks
 Override: FoxRace = 1          ; Fox race is being abused by quest entities
 Override: ChickenRace = 1      ; Chicken as well
-
-## Uncomment below to enable debugging
-#debug

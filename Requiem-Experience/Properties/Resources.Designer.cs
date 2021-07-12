@@ -22,7 +22,7 @@ namespace RequiemExperience.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace RequiemExperience.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Requiem-Experience.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RequiemExperience.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace RequiemExperience.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -67,42 +67,42 @@ namespace RequiemExperience.Properties {
         ///## NPC EditorIDs ignore list
         ///Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
         ///Ignore: callenhorker   ;level is out of place
-        ///Ignore: DLC2Miraak.*   ;his human form spoils humanoids
+        ///Ignore: DLC2Miraak.*   ;his human form spoils other humanoids
         ///Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
         ///Ignore: Summon.*       ;levels of summonned entities shouldn&apos;t affect wild XP
-        ///
-        ///## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
-        ///Groups: Atronachs = AtronachFrost,Atron [rest of string was truncated]&quot;;.
+        ///Ignore: EG_CONJ.*      ;same
+        ///Ignore: MG05Messenger
+        ///Ignore: DA14Summoned
+        ///Ignore: DA14Sanguine
+        ///Ignore: DA07VoiceMehrunesDagon
+        ///I [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string npcs {
+        public static string npcs {
             get {
                 return ResourceManager.GetString("npcs", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## Uncomment below to enable debugging
-        ///debug
-        ///
-        ///## Requiem installation quest = no XP
+        ///   Looks up a localized string similar to ## Requiem installation quest = no XP
         ///REQ_Quest_Installation=Misc
         ///
         ///## Live Another Life = no XP
-        ///MQ101=Misc
         ///ARTHLALChargenQuest=Misc
+        ///MQ101=Misc
+        ///ARTHLALRumorsOfWarQuest=None ;Helgen quest which kicks off main story = minimal XP
+        ///MQ102=None ;Whiterun travel quest = minimal XP
         ///
-        ///## Helgen quest which kicks off main story = minimal XP
-        ///ARTHLALRumorsOfWarQuest=None
+        ///## SunHelm activation quest (type 8)
+        ///_SHStartPrompt=Misc
         ///
         ///## Courier missives, minimal / small XP for all
         ///_M_Quest.*CourierLetterLow=None
         ///_M_Quest.*CourierLetterMed=None
         ///_M_Quest.*CourierLetterHigh=SideQuest
-        ///_M_Quest.*CourierPotionLow=None
-        ///_M_Quest.*CourierPotionMed=None
-        ///_M_Quest.*Cour [rest of string was truncated]&quot;;.
+        ///_M_Quest.*CourierPotionLo [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string quests {
+        public static string quests {
             get {
                 return ResourceManager.GetString("quests", resourceCulture);
             }
