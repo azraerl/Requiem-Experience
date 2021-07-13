@@ -33,8 +33,8 @@ namespace RequiemExperience
         [SynthesisTooltip("Do racial tweaks and generate DefaultRaces.csv")]
         public bool PatchRaces = true;
 
-        [SynthesisIgnoreSetting]
-        public bool ConservativePatching = true;
+        [SynthesisTooltip("Formula which converts enemy level into XP value. Old formula is just \"[level]\"")]
+        public string LevelFormula = "pow( [level], 1.35 ) / 2";
 
         [SynthesisTooltip("Generate debug file - npcs.csv")]
         public bool Debug = false;

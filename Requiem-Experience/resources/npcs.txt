@@ -49,10 +49,12 @@ Unique: DLC2dunHorkerIslandEncHorker
 Unique: dunHunter.*
 
 ## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
-Groups: Atronachs = AtronachFrost,AtronachStorm,AtronachFlame
 Groups: StopRacism = Argonian,Breton,DarkElf,HighElf,Imperial,Khajiit,Nord,Orc,Redguard,WoodElf
+#Groups: Atronachs = AtronachFrost,AtronachStorm,AtronachFlame
 
 ## Overrides for particular race EditorIDs
-Override: DLC2MiraakRace = 250 ; He is tougher than he looks
+Override: DLC2MiraakRace = 350 ; He is tougher than he looks
+Override: AtronachFlameRace=30 ; Flamey ones are harder than usual Lv14 enemies
+Override: SkeletonNecroRace=15 ; Way too many of them, lets not level-up 3+ times
 Override: FoxRace = 1          ; Fox race is being abused by quest entities
 Override: ChickenRace = 1      ; Chicken as well

@@ -57,8 +57,9 @@ namespace RequiemExperience
                     x => x[1].Trim(),
                     x => int.TryParse(x[2].Trim(), out var res) ? res : 0
                 );
+            Expressive.Expression exp = new Expressive.Expression(Settings.RaceSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
 
-            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {averageMode}\r\n + Groups count is {racesGroups.Count}\r\n + Ignorable NPCs count is {ignoreableNPCs.Count}\r\n + Unique NPCs count is {uniqueNPCs.Count}\r\n + Race XP overrides count is {overrideRaces.Count}\r\n + Debug = {npcs != null}");
+            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {averageMode}\r\n + Groups count is {racesGroups.Count}\r\n + Ignorable NPCs count is {ignoreableNPCs.Count}\r\n + Unique NPCs count is {uniqueNPCs.Count}\r\n + Race XP overrides count is {overrideRaces.Count}\r\n + Level Expression is {Settings.RaceSettings.LevelFormula}\r\n + Debug = {npcs != null}");
 
             var races = new StringBuilder();
             var racesLevels = new Dictionary<string, ICollection<double>>();
@@ -152,21 +153,21 @@ namespace RequiemExperience
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(overrid);
+                    races.Append(express(overrid, exp));
                     races.Append('\n');
                 }
                 else if (key != null && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(average(glevels, averageMode));
+                    races.Append(express(average(glevels, averageMode), exp));
                     races.Append('\n');
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(average(levels, averageMode));
+                    races.Append(express(average(levels, averageMode), exp));
                     races.Append('\n');
                 }
                 else if (race.Starting.TryGetValue(BasicStat.Health, out var startingHealth))
@@ -174,7 +175,7 @@ namespace RequiemExperience
                     // fallback for races which don't have NPCs defined
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(Math.Floor(Math.Sqrt(startingHealth) + 0.5));
+                    races.Append(express((int)Math.Floor(Math.Sqrt(startingHealth) + 0.5), exp));
                     races.Append('\n');
                 }
             }
@@ -192,6 +193,23 @@ namespace RequiemExperience
             }
 
             return any;
+        }
+
+        static int express( int level, Expressive.Expression ex )
+        {
+            if( ex == null )
+            {
+                return level;
+            }
+            var result = ex.Evaluate(new Dictionary<string, object> { ["level"] = level });
+            if( result is double )
+            {
+                level = Convert.ToInt32(Math.Ceiling((double)result));
+            } else
+            {
+                level = Convert.ToInt32(result);
+            }
+            return level;
         }
 
         static int average(ICollection<double> levels, string mode)
