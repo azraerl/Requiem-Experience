@@ -43,7 +43,7 @@ namespace RequiemExperience
                 {
                     if (avi.Skill != null && avi.EditorID != null && list.Contains(avi.EditorID))
                     {
-                        if (avi.Skill != null && avi.Skill.UseMult != 0.0f && avi.Skill.OffsetMult != 0.0f && avi.Skill.ImproveOffset < 9999.0f)
+                        if (avi.Skill != null && ( avi.Skill.UseMult != 0.0f || avi.Skill.OffsetMult != 0.0f || avi.Skill.ImproveOffset < 9999.0f ) )
                         {
                             var pavi = state.PatchMod.ActorValueInformation.GetOrAddAsOverride(avi);
                             if (pavi.Skill != null)
@@ -59,10 +59,10 @@ namespace RequiemExperience
                 any = true;
             }
 
-            Console.WriteLine($@"Settings.SkillSettings.PatchSkillBooks is {Settings.SkillSettings.PatchSkillBooks}");
+            double mult = Settings.SkillSettings.SkillBooksValueMultiplier / 100.0;
+            Console.WriteLine($@"Settings.SkillSettings.PatchSkillBooks is {Settings.SkillSettings.PatchSkillBooks}\r\n + Value multiplier is: {mult}x");
             if (Settings.SkillSettings.PatchSkillBooks)
             {
-                double mult = Settings.SkillSettings.SkillBooksValueMultiplier / 100.0;
                 foreach (var book in state.LoadOrder.PriorityOrder.WinningOverrides<IBookGetter>())
                 {
                     if (book.Flags.HasFlag((Book.Flag)BookTeachesSkill))
@@ -71,7 +71,7 @@ namespace RequiemExperience
                         pb.Teaches?.Clear();
                         if(pb.Flags.HasFlag((Book.Flag)BookTeachesSkill))
                         {
-                            pb.Flags = pb.Flags ^ (Book.Flag)BookTeachesSkill;
+                            pb.Flags ^= (Book.Flag)BookTeachesSkill;
                         }
                         pb.Value = (uint)(pb.Value * mult);
                     }
