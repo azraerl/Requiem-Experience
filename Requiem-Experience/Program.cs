@@ -38,6 +38,19 @@ namespace RequiemExperience
             {
                 state.PatchMod.Clear();
             }
+
+            var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience.ini";
+            switch (Settings.General.Preset)
+            {
+                case General.ExperiencePreset.TrueUnlevelled:
+                    Console.WriteLine($@"Writing {Settings.General.Preset} preset to {outputPath}");
+                    File.WriteAllText(outputPath, RequiemExperience.Properties.Resources.True_Experience);
+                    break;
+                case General.ExperiencePreset.ExtraRewarding:
+                    Console.WriteLine($@"Writing {Settings.General.Preset} preset to {outputPath}");
+                    File.WriteAllText(outputPath, RequiemExperience.Properties.Resources.Reward_Experience);
+                    break;
+            }
         }
     }
 }

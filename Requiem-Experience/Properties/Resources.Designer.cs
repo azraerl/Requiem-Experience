@@ -61,10 +61,7 @@ namespace RequiemExperience.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## Way to aggregate levels
-        ///Mode: Mean
-        ///
-        ///## NPC EditorIDs ignore list
+        ///   Looks up a localized string similar to ## NPC EditorIDs ignore list
         ///Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
         ///Ignore: callenhorker   ;level is out of place
         ///Ignore: DLC2Miraak.*   ;his human form spoils other humanoids
@@ -75,7 +72,8 @@ namespace RequiemExperience.Properties {
         ///Ignore: DA14Summoned
         ///Ignore: DA14Sanguine
         ///Ignore: DA07VoiceMehrunesDagon
-        ///I [rest of string was truncated]&quot;;.
+        ///Ignore: EncDremora.*
+        ///Ignore: DLC1nVampir [rest of string was truncated]&quot;;.
         /// </summary>
         public static string npcs {
             get {
@@ -105,6 +103,54 @@ namespace RequiemExperience.Properties {
         public static string quests {
             get {
                 return ResourceManager.GetString("quests", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [General]
+        ///bEnableKilling=1            ;0      1
+        ///bEnableReading=1            ;       1
+        ///bEnableSkillXP=0            ;0      0
+        ///bForceLvlMeter=0            ;0      0
+        ///bShowMessages=1             ;1      1
+        ///bLocClearingFix=1           ;       1
+        ///iMaxPlayerLevel=255         ;255    255
+        ///fSkillCapBase=20            ;18.0   18.0
+        ///fSkillCapMult=2.5           ;2.0    2.0
+        ///bUseRacialCaps=0            ;1      1
+        ///
+        ///[Questing]
+        ///iXPQuestMisc=0              ;0      25
+        ///iXPQuestNone=15             ;75     50
+        ///iXPQuestSi [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Reward_Experience {
+            get {
+                return ResourceManager.GetString("Reward_Experience", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [General]
+        ///bEnableKilling=1            ;0      1
+        ///bEnableReading=1            ;       1
+        ///bEnableSkillXP=0            ;0      0
+        ///bForceLvlMeter=0            ;0      0
+        ///bShowMessages=1             ;1      1
+        ///bLocClearingFix=1           ;       1
+        ///iMaxPlayerLevel=255         ;255    255
+        ///fSkillCapBase=20            ;18.0   18.0
+        ///fSkillCapMult=2.5           ;2.0    2.0
+        ///bUseRacialCaps=0            ;1      1
+        ///
+        ///[Questing]
+        ///iXPQuestMisc=0              ;0      25
+        ///iXPQuestNone=15             ;75     50
+        ///iXPQuestSi [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string True_Experience {
+            get {
+                return ResourceManager.GetString("True_Experience", resourceCulture);
             }
         }
     }

@@ -24,29 +24,14 @@ namespace RequiemExperience
                 return false;
             }
 
-            var questConfig = RequiemExperience.Properties.Resources.quests.Split('\n', StringSplitOptions.TrimEntries)
-                .Where(x => !x.StartsWith('#') && x.Length != 0)
-                .Select(x => x.Split(new char[] { ';' })[0].Trim())
-                .Select(x => x.Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries));
-            var questOverride = questConfig
-                .Where(x => x.Length >= 2)
-                .ToDictionary(
-                    x => x[0].Trim(),
-                    x => Enum.TryParse<Quest.TypeEnum>(x[1].Trim(), true, out var res) ? res : Quest.TypeEnum.Misc
-                );
-            var questCond = questConfig
-                .Where(x => x.Length >= 3)
-                .ToDictionary(
-                    x => x[0].Trim(),
-                    x => x[2].Trim()
-                );
-
-            StringBuilder? quests = Settings.QuestSettings.Debug ? new StringBuilder() : null;
+            StringBuilder? quests = Settings.General.Debug ? new StringBuilder() : null;
             quests?.Append("EditorID;Type;Name;Stages;Stages Text\r\n");
 
-            Console.WriteLine($"Processing Quests Patch:\r\n + Overrides count is {questOverride.Count}\r\n + Conditions count is {questCond.Count}\r\n + Debug = {quests != null}");
+            Console.WriteLine($"Processing Quests Patch:\r\n + Overrides count is {Settings.QuestSettings.QuestRules.Count}\r\n + Conditions count is {Settings.QuestSettings.QuestConditions.Count}\r\n + Debug = {quests != null}");
 
-            FormList? radiantExcl = null;
+            var questOverride = Settings.QuestSettings.QuestRules.ToDictionary(x => x.name, x => x);
+            var questCond = Settings.QuestSettings.QuestConditions.ToDictionary(x => x.name, x => x.value);
+            FormList ? radiantExcl = null;
             if (questCond.Count > 0)
             {
                 radiantExcl = state.PatchMod.FormLists.AddNew("vf_RadiantExclusion");
@@ -64,19 +49,19 @@ namespace RequiemExperience
                 {
                     key = quest.EditorID;
                     patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                    patchQ.Type = type;
+                    patchQ.Type = type.asType();
                     anyQuests = true;
                 }
                 else
                 {
                     var lookup = questOverride
-                        .Where(d => Regex.IsMatch(quest.EditorID, "^" + d.Key + "$", RegexOptions.IgnoreCase))
+                        .Where(d => d.Value.asRegex().IsMatch(quest.EditorID) )
                         .ToDictionary(d => d.Key, d => d.Value);
                     if (lookup.Values.Count == 1)
                     {
                         key = lookup.Keys.ElementAt(0);
                         patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                        patchQ.Type = lookup.Values.ElementAt(0);
+                        patchQ.Type = lookup.Values.ElementAt(0).asType();
                         anyQuests = true;
                     }
                 }

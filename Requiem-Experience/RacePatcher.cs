@@ -20,49 +20,22 @@ namespace RequiemExperience
         public static bool RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Settings Settings)
         {
             bool any = false;
-            Console.WriteLine($@"Settings.RaceSettings.PatchRaces is {Settings.RaceSettings.PatchRaces}");
-            if (!Settings.RaceSettings.PatchRaces)
+            Console.WriteLine($@"Settings.RaceSettings.PatchRaces is {Settings.RacesSettings.PatchRaces}");
+            if (!Settings.RacesSettings.PatchRaces)
             {
                 return any;
             }
 
-            var racesConfig = RequiemExperience.Properties.Resources.npcs.Split('\n', StringSplitOptions.TrimEntries)
-                 .Where(x => !x.StartsWith('#') && x.Length != 0)
-                 .Select(x => x.Split(new char[] { ';' })[0].Trim())
-                 .Select(x => x.Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries));
-
-            StringBuilder? npcs = Settings.RaceSettings.Debug ? new StringBuilder() : null;
+            StringBuilder? npcs = Settings.General.Debug ? new StringBuilder(50*1024) : null;
             npcs?.Append("NPC;Race;Level;Comments\r\n");
 
-            var averageMode = racesConfig.Where(x => x.Length >= 2 && x[0].Equals("mode", StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x[1].Trim().ToLowerInvariant()).DefaultIfEmpty("median").First();
-            var raceOutFile = racesConfig.Where(x => x.Length >= 2 && x[0].Equals("file", StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x[1].Trim().ToLowerInvariant()).DefaultIfEmpty("DefaultRaces").First();
-            var racesGroups = racesConfig
-                .Where(x => x.Length >= 3 && x[0].Equals("Groups", StringComparison.InvariantCultureIgnoreCase))
-                .ToDictionary(
-                    x => x[1].Trim(),
-                    x => x[2].Trim().Split(',', StringSplitOptions.RemoveEmptyEntries)
-                );
-            var ignoreableNPCs = racesConfig
-                .Where(x => x.Length >= 2 && x[0].Equals("Ignore", StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x[1].Trim()).ToList();
-            var uniqueNPCs = racesConfig
-                .Where(x => x.Length >= 2 && x[0].Equals("Unique", StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x[1].Trim()).ToList();
+            Expressive.Expression exp = new Expressive.Expression(Settings.RacesSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
 
-            var overrideRaces = racesConfig
-                .Where(x => x.Length >= 2 && x[0].Equals("Override", StringComparison.InvariantCultureIgnoreCase))
-                .ToDictionary(
-                    x => x[1].Trim(),
-                    x => int.TryParse(x[2].Trim(), out var res) ? res : 0
-                );
-            Expressive.Expression exp = new Expressive.Expression(Settings.RaceSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
+            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {Settings.RacesSettings.Mode}\r\n + Groups count is {Settings.RacesSettings.Grouping.Count}\r\n + Ignorable NPCs count is {Settings.RacesSettings.Ignore.Count}\r\n + Unique NPCs count is {Settings.RacesSettings.Unique.Count}\r\n + Race XP overrides count is {Settings.RacesSettings.Override.Count}\r\n + Level Expression is {Settings.RacesSettings.LevelFormula}\r\n + Debug = {npcs != null}");
 
-            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {averageMode}\r\n + Groups count is {racesGroups.Count}\r\n + Ignorable NPCs count is {ignoreableNPCs.Count}\r\n + Unique NPCs count is {uniqueNPCs.Count}\r\n + Race XP overrides count is {overrideRaces.Count}\r\n + Level Expression is {Settings.RaceSettings.LevelFormula}\r\n + Debug = {npcs != null}");
-
-            var races = new StringBuilder();
+            var races = new StringBuilder(10*1024); // 10 KiB
             var racesLevels = new Dictionary<string, ICollection<double>>();
+            var racesOverrs = Settings.RacesSettings.Override.ToDictionary(x => x.name, x => x.value);
             foreach (var npc in state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>())
             {
                 int level = -1;
@@ -83,9 +56,10 @@ namespace RequiemExperience
                 string? val = null;
                 string? EditorID = null;
                 var ignore = npc.EditorID == null
-                    || ignoreableNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
-                var unique = npc.EditorID == null
-                    || uniqueNPCs.Where(x => Regex.IsMatch(npc.EditorID, "^" + x + "$", RegexOptions.IgnoreCase)).Any();
+                    || Settings.RacesSettings.Ignore.Any(x => x.asRegex().IsMatch(npc.EditorID))
+                    || Settings.RacesSettings.Override.Any(x => x.name.Equals(npc.EditorID, StringComparison.OrdinalIgnoreCase));
+                var unique = npc.EditorID != null
+                    && Settings.RacesSettings.Unique.Any(x => x.asRegex().IsMatch(npc.EditorID));
                 //npc.AttackRace.TryResolve(state.LinkCache, out arace);
                 if (npc.Race.TryResolve(state.LinkCache, out var race) && !ignore)
                 {
@@ -117,20 +91,16 @@ namespace RequiemExperience
                         }
                         any = true;
                     }
-                    else
-                    {
-                        raceGroupLookup(racesGroups, EditorID, out key, out val);
-                    }
 
-                    if (key != null && racesGroups.TryGetValue(key, out var group))
+                    if(!unique && raceGroupLookup(Settings.RacesSettings.Grouping, EditorID, out key, out val))
                     {
-                        if (!racesLevels.TryGetValue(key + val, out var levels))
+                        if (racesLevels.TryGetValue(key + val, out var levels))
                         {
-                            racesLevels.Add(key + val, new List<double>() { level });
+                            levels.Add(level);
                         }
                         else
                         {
-                            levels.Add(level);
+                            racesLevels.Add(key + val, new List<double>() { level });
                         }
                     }
                     else if (EditorID != null && racesLevels.TryGetValue(EditorID, out var levels))
@@ -148,26 +118,26 @@ namespace RequiemExperience
 
             foreach (var race in state.LoadOrder.PriorityOrder.WinningOverrides<IRaceGetter>())
             {
-                raceGroupLookup(racesGroups, race.EditorID, out var key, out var val);
-                if (overrideRaces.TryGetValue(race.EditorID ?? "null", out int overrid))
+                if (racesOverrs.TryGetValue(race.EditorID ?? "null", out int overrid))
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
                     races.Append(express(overrid, exp));
                     races.Append('\n');
                 }
-                else if (key != null && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
+                else if (raceGroupLookup(Settings.RacesSettings.Grouping, race.EditorID, out var key, out var val)
+                    && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(express(average(glevels, averageMode), exp));
+                    races.Append(express(average(glevels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(express(average(levels, averageMode), exp));
+                    races.Append(express(average(levels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
                 else if (race.Starting.TryGetValue(BasicStat.Health, out var startingHealth))
@@ -183,8 +153,8 @@ namespace RequiemExperience
             var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience\";
             Console.WriteLine($@"Creating folder: {outputPath}Races\");
             Directory.CreateDirectory($@"{outputPath}Races\");
-            Console.WriteLine($@"Writing races patch: {outputPath}Races\{raceOutFile}.csv");
-            File.WriteAllText($@"{outputPath}Races\{raceOutFile}.csv", races.ToString());
+            Console.WriteLine($@"Writing races patch: {outputPath}Races\{Settings.RacesSettings.OutputFile}.csv");
+            File.WriteAllText($@"{outputPath}Races\{Settings.RacesSettings.OutputFile}.csv", races.ToString());
 
             if (npcs != null)
             {
@@ -212,25 +182,24 @@ namespace RequiemExperience
             return level;
         }
 
-        static int average(ICollection<double> levels, string mode)
+        static int average(ICollection<double> levels, RacesSettings.AverageMode mode)
         {
             double ret = double.NaN;
             switch (mode)
             {
-                case "mean":
-                case "average":
+                case RacesSettings.AverageMode.Mean:
                     ret = Math.Round(levels.Where(x => x != 0).Mean());
                     break;
-                case "geometric":
+                case RacesSettings.AverageMode.GeometricMean:
                     ret = Math.Round(levels.Where(x => x != 0).GeometricMean());
                     break;
-                case "harmonic":
+                case RacesSettings.AverageMode.HarmonicMean:
                     ret = Math.Round(levels.Where(x => x != 0).HarmonicMean());
                     break;
-                case "rms":
+                case RacesSettings.AverageMode.RootMeanSquare:
                     ret = Math.Round(levels.Where(x => x != 0).RootMeanSquare());
                     break;
-                case "median":
+                case RacesSettings.AverageMode.Median:
                 default:
                     ret = Math.Round(levels.Where(x => x != 0).Median());
                     break;
@@ -238,27 +207,24 @@ namespace RequiemExperience
             return (!double.IsNormal(ret)) ? 0 : (int)ret;
         }
 
-        static void raceGroupLookup(Dictionary<string, string[]> racesGroups, string? race, out string? key, out string? val)
+        static bool raceGroupLookup(List<RacesSettings.RaceGroup> racesGroups, string? race, out string? key, out string? val)
         {
             key = null;
             val = null;
-            if (race == null) return;
+            if (race == null) return false;
             foreach (var raceGroup in racesGroups)
             {
-                foreach (var sfx in raceGroup.Value)
+                foreach (var sfx in raceGroup.value)
                 {
                     if (race.StartsWith(sfx, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        key = raceGroup.Key;
-                        val = race.Substring(sfx.Length);
-                        break;
+                        key = raceGroup.name;
+                        val = race[sfx.Length..];
+                        return true;
                     }
                 }
-                if (key != null)
-                {
-                    break;
-                }
             }
+            return false;
         }
     }
 }

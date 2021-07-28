@@ -1,6 +1,3 @@
-## Way to aggregate levels
-Mode: Mean
-
 ## NPC EditorIDs ignore list
 Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
 Ignore: callenhorker   ;level is out of place

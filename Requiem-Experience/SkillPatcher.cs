@@ -14,34 +14,38 @@ namespace RequiemExperience
     [SupportedOSPlatform("windows10")]
     class SkillPatcher
     {
+        private static HashSet<string> skills = new HashSet<string>();
+        static SkillPatcher()
+        {
+            skills.Add("AVAlteration");
+            skills.Add("AVConjuration");
+            skills.Add("AVDestruction");
+            skills.Add("AVEnchanting");
+            skills.Add("AVMysticism");
+            skills.Add("AVRestoration");
+            skills.Add("AVAlchemy");
+            skills.Add("AVLightArmor");
+            skills.Add("AVLockpicking");
+            skills.Add("AVPickpocket");
+            skills.Add("AVSneak");
+            skills.Add("AVSpeechcraft");
+            skills.Add("AVMarksman");
+            skills.Add("AVBlock");
+            skills.Add("AVHeavyArmor");
+            skills.Add("AVOneHanded");
+            skills.Add("AVSmithing");
+            skills.Add("AVTwoHanded");
+        }
+
         public static bool RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Settings Settings)
         {
             bool any = false;
             Console.WriteLine($@"Settings.SkillSettings.SuppressSkillGains is {Settings.SkillSettings.SuppressSkillGains}");
             if (Settings.SkillSettings.SuppressSkillGains)
             {
-                var list = new HashSet<string>();
-                list.Add("AVAlteration");
-                list.Add("AVConjuration");
-                list.Add("AVDestruction");
-                list.Add("AVEnchanting");
-                list.Add("AVMysticism");
-                list.Add("AVRestoration");
-                list.Add("AVAlchemy");
-                list.Add("AVLightArmor");
-                list.Add("AVLockpicking");
-                list.Add("AVPickpocket");
-                list.Add("AVSneak");
-                list.Add("AVSpeechcraft");
-                list.Add("AVMarksman");
-                list.Add("AVBlock");
-                list.Add("AVHeavyArmor");
-                list.Add("AVOneHanded");
-                list.Add("AVSmithing");
-                list.Add("AVTwoHanded");
                 foreach (var avi in state.LoadOrder.PriorityOrder.WinningOverrides<IActorValueInformationGetter>())
                 {
-                    if (avi.Skill != null && avi.EditorID != null && list.Contains(avi.EditorID))
+                    if (avi.Skill != null && avi.EditorID != null && skills.Contains(avi.EditorID))
                     {
                         if (avi.Skill != null && ( avi.Skill.UseMult != 0.0f || avi.Skill.OffsetMult != 0.0f || avi.Skill.ImproveOffset < 9999.0f ) )
                         {
@@ -60,7 +64,7 @@ namespace RequiemExperience
             }
 
             double mult = Settings.SkillSettings.SkillBooksValueMultiplier / 100.0;
-            Console.WriteLine($@"Settings.SkillSettings.PatchSkillBooks is {Settings.SkillSettings.PatchSkillBooks}\r\n + Value multiplier is: {mult}x");
+            Console.WriteLine($"Settings.SkillSettings.PatchSkillBooks is {Settings.SkillSettings.PatchSkillBooks}\r\n + Value multiplier is: {mult}x");
             if (Settings.SkillSettings.PatchSkillBooks)
             {
                 foreach (var book in state.LoadOrder.PriorityOrder.WinningOverrides<IBookGetter>())
