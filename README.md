@@ -1,6 +1,8 @@
 # Requiem-Experience
 
-This is an auto-patcher which is meant to create patch for Experience mod, to be used along with Requiem. It takes care of 2 things:
+This is an auto-patcher which is meant to create patch for Experience mod, to be used along with Requiem - or any other overhaul which makes Skyrim world to be un-levelled.
+
+It takes care of few things:
 * Adjusts quest types for various mods to reduce/increase XP - would only affect quests which present in your load order:
   * Vanilla Skyrim: reduces XP from Helgen & Whiterun main quests;
   * Requiem: removes XP from Requiem install/init quest;
@@ -12,10 +14,14 @@ This is an auto-patcher which is meant to create patch for Experience mod, to be
   * Unique: NPCs with Editor ID matching regex will be assigned with new race (generated as "<race EditorID>__<npc EditorID>") and thus will have unique XP value;
   * Groups: NPCs with races in list will be grouped together to average over their power. Basically makes sure that, say, Bosmer and Nord bandits or vampires will have same XP value;
   * Override: this particular Races (not NPCs!) will have its XP set to a constant provided.
+* Skills related changes:
+  * Suppresses Skill XP gain from use, e.g. disables vanilla skill levelling system. Meant to be used with mods which provide alternative Skill levelling (Requiem - Static Skill Levelling or 3Tweaks, for example). ___Untick this one if you are not planning to use such mods___;
+  * Removes Skills from Skill Books thus makes them to be a normal books. Also increases gold value of no-longer-Skill Books (default is 200%/2x)
 
 
 I have also included 2 proposed Experience ini presets, which share most of the settings apart from killing XP:
-* True_Experience.ini - true unleveled XP, which means XP multiplier is 1.0 and level range is 999. Killing XP doesn't care of your level / level of the enemy.
+* True_Experience.ini - true unleveled XP, which means XP multiplier is 1.0 and level range is 65535. Killing XP doesn't care of your level / level of the enemy.
 * Reward_Experience.ini - challenge rewarded... XP multiplier is 0.5 and level range is 10. You get full XP only when kill enemy 10 levels above you, and about 1 XP when kill enemy 10 levels below you. On other hand if enemy is 10+ levels above - you get extra credit.
 
-Pick one, rename it to Experience.ini and use instead of original one. Feel free to edit proposed values if you like so~
+Pick one via Synthesis Settings, or grab it manually ¯\\\_(ツ)\_/¯
+Feel free to edit proposed values if you like so~
