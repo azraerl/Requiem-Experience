@@ -79,6 +79,10 @@ namespace RequiemExperience
                         newRace.MorphRace.SetTo(!race.MorphRace.IsNull ? race.MorphRace : race.AsNullableLink());
                         newRace.AttackRace.SetTo(!race.AttackRace.IsNull ? race.AttackRace : race.AsNullableLink());
                         newRace.ArmorRace.SetTo(!race.ArmorRace.IsNull ? race.ArmorRace : race.AsNullableLink());
+                        if(newRace.Flags.HasFlag(Race.Flag.Playable))
+                        {
+                            newRace.Flags ^= Race.Flag.Playable;
+                        }
                         var patchN = state.PatchMod.Npcs.GetOrAddAsOverride(npc);
                         patchN.Race.SetTo(newRace);
                         foreach (var otherFormList in otherFormLists)
