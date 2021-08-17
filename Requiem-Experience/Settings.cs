@@ -64,7 +64,7 @@ namespace RequiemExperience
         public AverageMode Mode = AverageMode.Mean;
 
         [SynthesisTooltip("Formula which converts enemy level into XP value. Old formula is just \"[level]\"")]
-        public string LevelFormula = "pow( [level], 1.35 ) / 2";
+        public string LevelFormula = "pow( [level], 1.28 ) / 2";
 
         [SynthesisSettingName("NPCs to ignore")]
         [SynthesisTooltip("List of NPC EditorIDs to be ignored from averaging. Accepts regular expressions.")]
