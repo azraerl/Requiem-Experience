@@ -38,6 +38,13 @@ namespace RequiemExperience
             var racesOverrs = Settings.RacesSettings.Override.ToDictionary(x => x.name, x => x.value);
             foreach (var npc in state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>())
             {
+                var ignore = npc.EditorID == null || Settings.RacesSettings.Ignore.Any(x => x.asRegex().IsMatch(npc.EditorID));
+                if( ignore )
+                {
+                    npcs?.Append(npc.EditorID + ",?,?,ignored\r\n");
+                    continue;
+                }
+
                 int level = -1;
                 if (npc.Configuration.Level is IPcLevelMult)
                 {
@@ -55,15 +62,18 @@ namespace RequiemExperience
                 string? key = null;
                 string? val = null;
                 string? EditorID = null;
-                var ignore = npc.EditorID == null
-                    || Settings.RacesSettings.Ignore.Any(x => x.asRegex().IsMatch(npc.EditorID))
-                    || Settings.RacesSettings.Override.Any(x => x.name.Equals(npc.EditorID, StringComparison.OrdinalIgnoreCase));
-                var unique = npc.EditorID != null
-                    && Settings.RacesSettings.Unique.Any(x => x.asRegex().IsMatch(npc.EditorID));
-                //npc.AttackRace.TryResolve(state.LinkCache, out arace);
-                if (npc.Race.TryResolve(state.LinkCache, out var race) && !ignore)
+                var unique = npc.EditorID != null && Settings.RacesSettings.Unique.Any(x => x.asRegex().IsMatch(npc.EditorID));
+
+                if (npc.Race.TryResolve(state.LinkCache, out var race))
                 {
                     EditorID = race.EditorID;
+                    bool overridden = Settings.RacesSettings.Override.Any(x => x.name.Equals(race.EditorID, StringComparison.OrdinalIgnoreCase));
+                    if( overridden )
+                    {
+                        npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + "overridden" + "\r\n");
+                        continue;
+                    }
+
                     if (unique)
                     {
                         var otherFormLists = state.LoadOrder.PriorityOrder.WinningOverrides<IFormListGetter>()
@@ -116,8 +126,7 @@ namespace RequiemExperience
                         racesLevels.Add(EditorID, new List<double>() { level });
                     }
                 }
-                npcs?.Append(npc.EditorID + "," + EditorID + "," + level + ","
-                    + key + val + (ignore ? " ignored" : "") + (unique ? " unique" : "") + "\r\n");
+                npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + key + val + (unique ? " unique" : "") + "\r\n");
             }
 
             foreach (var race in state.LoadOrder.PriorityOrder.WinningOverrides<IRaceGetter>())

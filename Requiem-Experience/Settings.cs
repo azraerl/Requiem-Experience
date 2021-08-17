@@ -74,7 +74,7 @@ namespace RequiemExperience
         [SynthesisTooltip("Unique NPCs also being ignored from averaging. However additionally their races will be duplicated, so custom XP can be applied\r\nNew Race EditorID is generated as \" < race EditorID > __ < npc EditorID > \"")]
         public List<NPC> Unique = new List<NPC>();
 
-        [SynthesisSettingName("Races Overrides")]
+        [SynthesisSettingName("Overridden Races")]
         [SynthesisTooltip("Overrides for particular race EditorIDs")]
         public List<RaceOverride> Override = new List<RaceOverride>();
 
