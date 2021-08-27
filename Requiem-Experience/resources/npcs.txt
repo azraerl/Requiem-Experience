@@ -44,6 +44,7 @@ Unique: dunKatariahLvlPenitusOculatusLieutenant
 Unique: DBM_dunWindPassWindcallerSpiderBoss
 Unique: DLC2dunHorkerIslandEncHorker
 Unique: dunHunter.*
+Unique: DLC2EbonyWarrior
 
 ## Race prefixes which must be grouped up to avoid racism, e.g. XP will be even
 Groups: StopRacism = Argonian,Breton,DarkElf,HighElf,Imperial,Khajiit,Nord,Orc,Redguard,WoodElf
