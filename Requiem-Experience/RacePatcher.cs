@@ -2,6 +2,7 @@
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,33 +27,74 @@ namespace RequiemExperience
                 return any;
             }
 
-            StringBuilder? npcs = Settings.General.Debug ? new StringBuilder(50*1024) : null;
+            StringBuilder? npcs = Settings.General.Debug ? new StringBuilder(500*1024) : null;
             npcs?.Append("NPC;Race;Level;Comments\r\n");
 
-            Expressive.Expression exp = new Expressive.Expression(Settings.RacesSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
+            Expressive.Expression exp = new(Settings.RacesSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
 
-            Console.WriteLine($"Processing NPC Races:\r\n + Averaging mode is {Settings.RacesSettings.Mode}\r\n + Groups count is {Settings.RacesSettings.Grouping.Count}\r\n + Ignorable NPCs count is {Settings.RacesSettings.Ignore.Count}\r\n + Unique NPCs count is {Settings.RacesSettings.Unique.Count}\r\n + Race XP overrides count is {Settings.RacesSettings.Override.Count}\r\n + Level Expression is {Settings.RacesSettings.LevelFormula}\r\n + Debug = {npcs != null}");
+            string settingsFile = state.ExtraSettingsDataPath + @"\RaceSettings.json";
+            var racesOverrs = new Dictionary<string, int>();
+            var ignoredNPCs = new List<Regex>();
+            var uniqueNPCs = new List<Regex>();
+            var raceGroups = new Dictionary<string, string[]>();
+            if (!File.Exists(settingsFile))
+            {
+                Console.WriteLine("\"RaceSettings.json\" not located in Users Data folder.");
+            }
+            else
+            {
+                var settingJson = JObject.Parse(File.ReadAllText(settingsFile));
+                var ignore = settingJson["Ignore"]?.ToObject<string[]>();
+                if (ignore != null)
+                {
+                    ignoredNPCs.AddRange(
+                        collection: ignore.Select(
+                            x => new Regex("^" + x + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)
+                        )
+                    );
+                }
+                var unique = settingJson["Unique"]?.ToObject<string[]>();
+                if (unique != null)
+                {
+                    uniqueNPCs.AddRange(
+                        collection: unique.Select(
+                            x => new Regex("^" + x + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)
+                        )
+                    );
+                }
+                racesOverrs = settingJson["Override"]?.ToObject<Dictionary<string, int>>() ?? racesOverrs;
+                raceGroups = settingJson["Groups"]?.ToObject<Dictionary<string, string[]>>() ?? raceGroups;
+            }
 
-            var races = new StringBuilder(10*1024); // 10 KiB
+            Console.WriteLine($"Processing NPC Races:\r\n" +
+                $" + Averaging mode is {Settings.RacesSettings.Mode}\r\n" +
+                $" + Groups count is {raceGroups.Count}\r\n" +
+                $" + Ignorable NPCs count is {ignoredNPCs.Count}\r\n" +
+                $" + Unique NPCs count is {uniqueNPCs.Count}\r\n" +
+                $" + Race XP overrides count is {racesOverrs.Count}\r\n" +
+                $" + Level Expression is {Settings.RacesSettings.LevelFormula}\r\n" +
+                $" + Debug = {npcs != null}");
+
+            var races = new StringBuilder(100*1024); // 100 KiB
             var racesLevels = new Dictionary<string, ICollection<double>>();
-            var racesOverrs = Settings.RacesSettings.Override.ToDictionary(x => x.name, x => x.value);
+
             foreach (var npc in state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>())
             {
-                var ignore = npc.EditorID == null || Settings.RacesSettings.Ignore.Any(x => x.asRegex().IsMatch(npc.EditorID));
+                var ignore = npc.EditorID == null || ignoredNPCs.Any(x => x.IsMatch(npc.EditorID));
                 if( ignore )
                 {
                     npcs?.Append(npc.EditorID + ",?,?,ignored\r\n");
                     continue;
                 }
 
-                int level = -1;
+                int level = 0;
                 if (npc.Configuration.Level is IPcLevelMult)
                 {
-                    level = npc.Configuration.CalcMinLevel;
+                    /*level = npc.Configuration.CalcMinLevel;
                     if (npc.Configuration.CalcMaxLevel != 0)
                     {
                         level = (level + npc.Configuration.CalcMaxLevel) / 2;
-                    }
+                    }*/
                 }
                 else if (npc.Configuration.Level is INpcLevelGetter npcLevel)
                 {
@@ -62,16 +104,30 @@ namespace RequiemExperience
                 string? key = null;
                 string? val = null;
                 string? EditorID = null;
-                var unique = npc.EditorID != null && Settings.RacesSettings.Unique.Any(x => x.asRegex().IsMatch(npc.EditorID));
+                var unique = npc.EditorID != null && uniqueNPCs.Any(x => x.IsMatch(npc.EditorID));
 
                 if (npc.Race.TryResolve(state.LinkCache, out var race))
                 {
                     EditorID = race.EditorID;
-                    bool overridden = Settings.RacesSettings.Override.Any(x => x.name.Equals(race.EditorID, StringComparison.OrdinalIgnoreCase));
+                    bool overridden = racesOverrs.Any(x => x.Key.Equals(race.EditorID, StringComparison.OrdinalIgnoreCase));
                     if( overridden )
                     {
                         npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + "overridden" + "\r\n");
                         continue;
+                    }
+
+                    if (Settings.RacesSettings.NPCUniqueFlagThreshold > 0 &&
+                        Settings.RacesSettings.NPCUniqueFlagThreshold <= level)
+                    {
+                        if (unique && npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique))
+                        {
+                            Console.WriteLine($"Info: {npc.EditorID} is already unique, regex is an overhead");
+                        }
+                        unique |= npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique);
+                    } else
+                    {
+                        // filter away low level (or levelled) unique flagged NPCs
+                        unique = false;
                     }
 
                     if (unique)
@@ -106,24 +162,27 @@ namespace RequiemExperience
                         any = true;
                     }
 
-                    if(!unique && raceGroupLookup(Settings.RacesSettings.Grouping, EditorID, out key, out val))
+                    if (level > 0)
                     {
-                        if (racesLevels.TryGetValue(key + val, out var levels))
+                        if (!unique && raceGroupLookup(raceGroups, EditorID, out key, out val))
+                        {
+                            if (racesLevels.TryGetValue(key + val, out var levels))
+                            {
+                                levels.Add(level);
+                            }
+                            else
+                            {
+                                racesLevels.Add(key + val, new List<double>() { level });
+                            }
+                        }
+                        else if (EditorID != null && racesLevels.TryGetValue(EditorID, out var levels))
                         {
                             levels.Add(level);
                         }
-                        else
+                        else if (EditorID != null)
                         {
-                            racesLevels.Add(key + val, new List<double>() { level });
+                            racesLevels.Add(EditorID, new List<double>() { level });
                         }
-                    }
-                    else if (EditorID != null && racesLevels.TryGetValue(EditorID, out var levels))
-                    {
-                        levels.Add(level);
-                    }
-                    else if (EditorID != null)
-                    {
-                        racesLevels.Add(EditorID, new List<double>() { level });
                     }
                 }
                 npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + key + val + (unique ? " unique" : "") + "\r\n");
@@ -138,7 +197,7 @@ namespace RequiemExperience
                     races.Append(express(overrid, exp));
                     races.Append('\n');
                 }
-                else if (raceGroupLookup(Settings.RacesSettings.Grouping, race.EditorID, out var key, out var val)
+                else if (raceGroupLookup(raceGroups, race.EditorID, out var key, out var val)
                     && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
                     races.Append(race.EditorID);
@@ -158,7 +217,7 @@ namespace RequiemExperience
                     // fallback for races which don't have NPCs defined
                     races.Append(race.EditorID);
                     races.Append(",");
-                    races.Append(express((int)Math.Floor(Math.Sqrt(startingHealth) + 0.5), exp));
+                    races.Append(express(Math.Sqrt(startingHealth), exp));
                     races.Append('\n');
                 }
             }
@@ -172,30 +231,29 @@ namespace RequiemExperience
             if (npcs != null)
             {
                 Console.WriteLine($@"Writing debug file: {outputPath}npcs.csv");
-                File.WriteAllText($@"{outputPath}npcs.csv", npcs?.ToString());
+                File.WriteAllText($@"{outputPath}npcs.csv", npcs.ToString());
             }
 
             return any;
         }
 
-        static int express( int level, Expressive.Expression ex )
+        static int express( double level, Expressive.Expression ex )
         {
             if( ex == null )
             {
-                return level;
+                return (int)level;
             }
             var result = ex.Evaluate(new Dictionary<string, object> { ["level"] = level });
             if( result is double )
             {
-                level = Convert.ToInt32(Math.Ceiling((double)result));
+                return Convert.ToInt32(Math.Ceiling((double)result));
             } else
             {
-                level = Convert.ToInt32(result);
+                return Convert.ToInt32(result);
             }
-            return level;
         }
 
-        static int average(ICollection<double> levels, RacesSettings.AverageMode mode)
+        static double average(ICollection<double> levels, RacesSettings.AverageMode mode)
         {
             double ret = double.NaN;
             switch (mode)
@@ -217,21 +275,21 @@ namespace RequiemExperience
                     ret = Math.Round(levels.Where(x => x != 0).Median());
                     break;
             }
-            return (!double.IsNormal(ret)) ? 0 : (int)ret;
+            return (!double.IsNormal(ret)) ? 0 : ret;
         }
 
-        static bool raceGroupLookup(List<RacesSettings.RaceGroup> racesGroups, string? race, out string? key, out string? val)
+        static bool raceGroupLookup(Dictionary<string, string[]> racesGroups, string? race, out string? key, out string? val)
         {
             key = null;
             val = null;
             if (race == null) return false;
             foreach (var raceGroup in racesGroups)
             {
-                foreach (var sfx in raceGroup.value)
+                foreach (var sfx in raceGroup.Value)
                 {
                     if (race.StartsWith(sfx, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        key = raceGroup.name;
+                        key = raceGroup.Key;
                         val = race[sfx.Length..];
                         return true;
                     }

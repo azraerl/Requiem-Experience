@@ -1,6 +1,7 @@
 ﻿using Mutagen.Bethesda;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,19 +19,45 @@ namespace RequiemExperience
     {
         public static bool RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Settings Settings)
         {
-            Console.WriteLine($@"Settings.QuestSettings.PatchQuests is {Settings.QuestSettings.PatchQuests}");
-            if (!Settings.QuestSettings.PatchQuests)
+            Console.WriteLine($@"Settings.QuestSettings.PatchQuests is {Settings.General.PatchQuests}");
+            if (!Settings.General.PatchQuests)
             {
                 return false;
+            }
+
+            string settingsFile = state.ExtraSettingsDataPath + @"\QuestSettings.json";
+            var questOverride = new Dictionary<Regex, Quest.TypeEnum>();
+            var questCond = new Dictionary<string, string>();
+            if (!File.Exists(settingsFile))
+            {
+                Console.WriteLine("\"QuestSettings.json\" not located in Users Data folder.");
+            }
+            else
+            {
+                var settingJson = JObject.Parse(File.ReadAllText(settingsFile));
+                questCond = settingJson["Condition"]?.ToObject<Dictionary<string, string>>() ?? questCond;
+                var ov = settingJson["Override"]?.ToObject<Dictionary<string, string>>();
+                if ( ov != null)
+                {
+                    foreach (var qo in ov)
+                    {
+                        questOverride.Add(
+                            new Regex("^" + qo.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline),
+                            (Quest.TypeEnum)Enum.Parse(typeof(Quest.TypeEnum), qo.Value)
+                        );
+                    }
+                }
             }
 
             StringBuilder? quests = Settings.General.Debug ? new StringBuilder() : null;
             quests?.Append("EditorID;Type;Name;Stages;Stages Text\r\n");
 
-            Console.WriteLine($"Processing Quests Patch:\r\n + Overrides count is {Settings.QuestSettings.QuestRules.Count}\r\n + Conditions count is {Settings.QuestSettings.QuestConditions.Count}\r\n + Debug = {quests != null}");
+            Console.WriteLine($"Processing Quests Patch:\r\n" +
+                $" + Overrides count is {questOverride.Count}\r\n" +
+                $" + Conditions count is {questCond.Count}\r\n" +
+                $" + Debug = {quests != null}"
+            );
 
-            var questOverride = Settings.QuestSettings.QuestRules.ToDictionary(x => x.name, x => x);
-            var questCond = Settings.QuestSettings.QuestConditions.ToDictionary(x => x.name, x => x.value);
             FormList ? radiantExcl = null;
             if (questCond.Count > 0)
             {
@@ -45,25 +72,16 @@ namespace RequiemExperience
 
                 string? key = null;
                 Quest? patchQ = null;
-                if (questOverride.TryGetValue(quest.EditorID, out var type))
+
+                var lookup = questOverride
+                    .Where(d => d.Key.IsMatch(quest.EditorID) )
+                    .ToDictionary(d => d.Key.ToString(), d => d.Value);
+                if (lookup.Count == 1)
                 {
-                    key = quest.EditorID;
+                    key = lookup.Keys.ElementAt(0);
                     patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                    patchQ.Type = type.asType();
+                    patchQ.Type = lookup.Values.ElementAt(0);
                     anyQuests = true;
-                }
-                else
-                {
-                    var lookup = questOverride
-                        .Where(d => d.Value.asRegex().IsMatch(quest.EditorID) )
-                        .ToDictionary(d => d.Key, d => d.Value);
-                    if (lookup.Values.Count == 1)
-                    {
-                        key = lookup.Keys.ElementAt(0);
-                        patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                        patchQ.Type = lookup.Values.ElementAt(0).asType();
-                        anyQuests = true;
-                    }
                 }
 
                 if (key != null && patchQ != null && radiantExcl != null && questCond.TryGetValue(key, out var condition))

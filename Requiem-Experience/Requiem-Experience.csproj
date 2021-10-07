@@ -17,8 +17,8 @@
   <ItemGroup>
     <PackageReference Include="ExpressiveParser" Version="2.4.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
-    <PackageReference Include="Mutagen.Bethesda" Version="0.30.6" />
-    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.19.2" />
+    <PackageReference Include="Mutagen.Bethesda" Version="0.33.1-pr002" />
+    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.20.2" />
   </ItemGroup>
 
   <ItemGroup>

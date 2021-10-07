@@ -61,52 +61,6 @@ namespace RequiemExperience.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## NPC EditorIDs ignore list
-        ///Ignore: .*3DNPC.*      ;levels of 3DNPC entities are just random
-        ///Ignore: callenhorker   ;level is out of place
-        ///Ignore: DLC2Miraak.*   ;his human form spoils other humanoids
-        ///Ignore: zzzCHMemory.*  ;VIGILANT is not really balanced for Requiem
-        ///Ignore: Summon.*       ;levels of summonned entities shouldn&apos;t affect wild XP
-        ///Ignore: EG_CONJ.*      ;same
-        ///Ignore: MG05Messenger
-        ///Ignore: DA14Summoned
-        ///Ignore: DA14Sanguine
-        ///Ignore: DA07VoiceMehrunesDagon
-        ///Ignore: EncDremora.*
-        ///Ignore: DLC1nVampir [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string npcs {
-            get {
-                return ResourceManager.GetString("npcs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ## Requiem installation quest = no XP
-        ///REQ_Quest_Installation=Misc
-        ///
-        ///## Live Another Life = no XP
-        ///ARTHLALChargenQuest=Misc
-        ///MQ101=Misc
-        ///ARTHLALRumorsOfWarQuest=None ;Helgen quest which kicks off main story = minimal XP
-        ///MQ102=None ;Whiterun travel quest = minimal XP
-        ///
-        ///## SunHelm activation quest (type 8)
-        ///_SHStartPrompt=Misc
-        ///
-        ///## Courier missives, minimal / small XP for all
-        ///_M_Quest.*CourierLetterLow=None
-        ///_M_Quest.*CourierLetterMed=None
-        ///_M_Quest.*CourierLetterHigh=SideQuest
-        ///_M_Quest.*CourierPotionLo [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string quests {
-            get {
-                return ResourceManager.GetString("quests", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [General]
         ///bEnableKilling=1            ;0      1
         ///bEnableReading=1            ;       1
