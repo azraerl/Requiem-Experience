@@ -7,7 +7,7 @@
 		"ARTHLALRumorsOfWarQuest": "None",
 
 		"MQ101": "Misc",
-		"MQ102": "None",
+		"MQ102": "Misc",
 
 		"TGRDU": "None",
 		"TGRGF": "None",
@@ -54,10 +54,15 @@
 		"_M_Quest.*KillDragon": "Vampire",
 		"_M_Quest.*TrackFugitive": "ThievesGuild",
 		"_M_Quest.*TrackThief": "ThievesGuild",
-		"_M_Quest.*TrackVampire": "MainQuest",
+		"_M_Quest.*TrackVampire": "CompanionQuests",
 		"_M_Quest.*RetrieveWilderness": "None",
 		"_M_Quest.*RetrieveHideout": "SideQuest",
-		"_M_Quest.*RetrieveRuins": "CompanionQuests"
+		"_M_Quest.*RetrieveRuins": "CompanionQuests",
+		"_M_Quest.*KillForsworn": "CompanionQuests",
+		"BQ01": "ThievesGuild",
+		"BQ02": "CompanionQuests",
+		"BQ03": "CompanionQuests",
+		"BQ04": "MainQuest"
 	},
 	"Condition": {
 	}

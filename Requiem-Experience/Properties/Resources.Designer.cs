@@ -59,53 +59,5 @@ namespace RequiemExperience.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [General]
-        ///bEnableKilling=1            ;0      1
-        ///bEnableReading=1            ;       1
-        ///bEnableSkillXP=0            ;0      0
-        ///bForceLvlMeter=0            ;0      0
-        ///bShowMessages=1             ;1      1
-        ///bLocClearingFix=1           ;       1
-        ///iMaxPlayerLevel=255         ;255    255
-        ///fSkillCapBase=20            ;18.0   18.0
-        ///fSkillCapMult=2.5           ;2.0    2.0
-        ///bUseRacialCaps=0            ;1      1
-        ///
-        ///[Questing]
-        ///iXPQuestMisc=0              ;0      25
-        ///iXPQuestNone=15             ;75     50
-        ///iXPQuestSi [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string Reward_Experience {
-            get {
-                return ResourceManager.GetString("Reward_Experience", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [General]
-        ///bEnableKilling=1            ;0      1
-        ///bEnableReading=1            ;       1
-        ///bEnableSkillXP=0            ;0      0
-        ///bForceLvlMeter=0            ;0      0
-        ///bShowMessages=1             ;1      1
-        ///bLocClearingFix=1           ;       1
-        ///iMaxPlayerLevel=255         ;255    255
-        ///fSkillCapBase=20            ;18.0   18.0
-        ///fSkillCapMult=2.5           ;2.0    2.0
-        ///bUseRacialCaps=0            ;1      1
-        ///
-        ///[Questing]
-        ///iXPQuestMisc=0              ;0      25
-        ///iXPQuestNone=15             ;75     50
-        ///iXPQuestSi [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string True_Experience {
-            get {
-                return ResourceManager.GetString("True_Experience", resourceCulture);
-            }
-        }
     }
 }

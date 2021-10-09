@@ -12,11 +12,11 @@ namespace RequiemExperience
     public class Settings
     {
         [SynthesisSettingName("General")]
-        public General General = new General();
+        public General General = new();
         [SynthesisSettingName("Skills-related Settings")]
-        public SkillSettings SkillSettings = new SkillSettings();
+        public SkillSettings SkillSettings = new();
         [SynthesisSettingName("Killing XP settings")]
-        public RacesSettings RacesSettings = new RacesSettings();
+        public RacesSettings RacesSettings = new();
     }
     public class General
     {

@@ -164,7 +164,7 @@ namespace RequiemExperience
 
                     if (level > 0)
                     {
-                        if (!unique && raceGroupLookup(raceGroups, EditorID, out key, out val))
+                        if (!unique && RaceGroupLookup(raceGroups, EditorID, out key, out val))
                         {
                             if (racesLevels.TryGetValue(key + val, out var levels))
                             {
@@ -193,31 +193,31 @@ namespace RequiemExperience
                 if (racesOverrs.TryGetValue(race.EditorID ?? "null", out int overrid))
                 {
                     races.Append(race.EditorID);
-                    races.Append(",");
-                    races.Append(express(overrid, exp));
+                    races.Append(',');
+                    races.Append(Express(overrid, exp));
                     races.Append('\n');
                 }
-                else if (raceGroupLookup(raceGroups, race.EditorID, out var key, out var val)
+                else if (RaceGroupLookup(raceGroups, race.EditorID, out var key, out var val)
                     && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
                     races.Append(race.EditorID);
-                    races.Append(",");
-                    races.Append(express(average(glevels, Settings.RacesSettings.Mode), exp));
+                    races.Append(',');
+                    races.Append(Express(Average(glevels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
                     races.Append(race.EditorID);
-                    races.Append(",");
-                    races.Append(express(average(levels, Settings.RacesSettings.Mode), exp));
+                    races.Append(',');
+                    races.Append(Express(Average(levels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
                 else if (race.Starting.TryGetValue(BasicStat.Health, out var startingHealth))
                 {
                     // fallback for races which don't have NPCs defined
                     races.Append(race.EditorID);
-                    races.Append(",");
-                    races.Append(express(Math.Sqrt(startingHealth), exp));
+                    races.Append(',');
+                    races.Append(Express(Math.Sqrt(startingHealth), exp));
                     races.Append('\n');
                 }
             }
@@ -237,48 +237,43 @@ namespace RequiemExperience
             return any;
         }
 
-        static int express( double level, Expressive.Expression ex )
+        static int Express( double level, Expressive.Expression ex )
         {
             if( ex == null )
             {
                 return (int)level;
             }
             var result = ex.Evaluate(new Dictionary<string, object> { ["level"] = level });
-            if( result is double )
-            {
-                return Convert.ToInt32(Math.Ceiling((double)result));
-            } else
+            if (result is not double)
             {
                 return Convert.ToInt32(result);
             }
+            else
+            {
+                return Convert.ToInt32(Math.Ceiling((double)result));
+            }
         }
 
-        static double average(ICollection<double> levels, RacesSettings.AverageMode mode)
+        static double Average(ICollection<double> levels, RacesSettings.AverageMode mode)
         {
             double ret = double.NaN;
-            switch (mode)
+            ret = mode switch
             {
-                case RacesSettings.AverageMode.Mean:
-                    ret = Math.Round(levels.Where(x => x != 0).Mean());
-                    break;
-                case RacesSettings.AverageMode.GeometricMean:
-                    ret = Math.Round(levels.Where(x => x != 0).GeometricMean());
-                    break;
-                case RacesSettings.AverageMode.HarmonicMean:
-                    ret = Math.Round(levels.Where(x => x != 0).HarmonicMean());
-                    break;
-                case RacesSettings.AverageMode.RootMeanSquare:
-                    ret = Math.Round(levels.Where(x => x != 0).RootMeanSquare());
-                    break;
-                case RacesSettings.AverageMode.Median:
-                default:
-                    ret = Math.Round(levels.Where(x => x != 0).Median());
-                    break;
-            }
+                RacesSettings.AverageMode.Mean =>
+                    Math.Round(levels.Where(x => x != 0).Mean()),
+                RacesSettings.AverageMode.GeometricMean =>
+                    Math.Round(levels.Where(x => x != 0).GeometricMean()),
+                RacesSettings.AverageMode.HarmonicMean =>
+                    Math.Round(levels.Where(x => x != 0).HarmonicMean()),
+                RacesSettings.AverageMode.RootMeanSquare =>
+                    Math.Round(levels.Where(x => x != 0).RootMeanSquare()),
+                _ =>
+                    Math.Round(levels.Where(x => x != 0).Median()),
+            };
             return (!double.IsNormal(ret)) ? 0 : ret;
         }
 
-        static bool raceGroupLookup(Dictionary<string, string[]> racesGroups, string? race, out string? key, out string? val)
+        static bool RaceGroupLookup(Dictionary<string, string[]> racesGroups, string? race, out string? key, out string? val)
         {
             key = null;
             val = null;

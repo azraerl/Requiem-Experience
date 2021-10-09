@@ -90,10 +90,10 @@ namespace RequiemExperience
                     {
                         if (alias.Name != null && alias.Name.Equals(condition, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            ConditionFloat cond = new ConditionFloat();
+                            ConditionFloat cond = new();
                             cond.CompareOperator = CompareOperator.NotEqualTo;
                             cond.ComparisonValue = 1.0f;
-                            FunctionConditionData func = new FunctionConditionData();
+                            FunctionConditionData func = new();
                             func.Function = Condition.Function.GetInCurrentLocFormList;
                             func.ParameterOneRecord.SetTo(radiantExcl);
                             cond.Data = func;

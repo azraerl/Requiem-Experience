@@ -9,10 +9,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="resources\npcs.txt" />
-    <None Remove="resources\quests.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ExpressiveParser" Version="2.4.0" />

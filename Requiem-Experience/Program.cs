@@ -39,16 +39,18 @@ namespace RequiemExperience
                 state.PatchMod.Clear();
             }
 
+            string rewardINI = state.ExtraSettingsDataPath + @"\Reward_Experience.ini";
+            string unlvldINI = state.ExtraSettingsDataPath + @"\True_Experience.ini";
             var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience.ini";
             switch (Settings.General.Preset)
             {
                 case General.ExperiencePreset.TrueUnlevelled:
-                    Console.WriteLine($@"Writing {Settings.General.Preset} preset to {outputPath}");
-                    File.WriteAllText(outputPath, RequiemExperience.Properties.Resources.True_Experience);
+                    Console.WriteLine($@"Writing {unlvldINI} preset to {outputPath}");
+                    File.Copy(unlvldINI, outputPath);
                     break;
                 case General.ExperiencePreset.ExtraRewarding:
-                    Console.WriteLine($@"Writing {Settings.General.Preset} preset to {outputPath}");
-                    File.WriteAllText(outputPath, RequiemExperience.Properties.Resources.Reward_Experience);
+                    Console.WriteLine($@"Writing {rewardINI} preset to {outputPath}");
+                    File.Copy(rewardINI, outputPath);
                     break;
             }
         }
