@@ -46,11 +46,11 @@ namespace RequiemExperience
             {
                 case General.ExperiencePreset.TrueUnlevelled:
                     Console.WriteLine($@"Writing {unlvldINI} preset to {outputPath}");
-                    File.Copy(unlvldINI, outputPath);
+                    File.Copy(unlvldINI, outputPath, true);
                     break;
                 case General.ExperiencePreset.ExtraRewarding:
                     Console.WriteLine($@"Writing {rewardINI} preset to {outputPath}");
-                    File.Copy(rewardINI, outputPath);
+                    File.Copy(rewardINI, outputPath, true);
                     break;
             }
         }
