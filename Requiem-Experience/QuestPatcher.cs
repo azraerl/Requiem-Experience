@@ -88,7 +88,7 @@ namespace RequiemExperience
                     Console.WriteLine("WARN: Found more than one match for " + quest.EditorID);
                 }
 
-                if (key != null && patchQ != null)
+                if (key != null && patchQ != null && patchQ.Type != Quest.TypeEnum.Misc)
                 {
                     bool foundFail = false, foundCmpl = false;
                     foreach (var stage in patchQ.Stages)
