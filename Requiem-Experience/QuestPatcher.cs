@@ -50,7 +50,7 @@ namespace RequiemExperience
             }
 
             StringBuilder? quests = Settings.General.Debug ? new StringBuilder() : null;
-            quests?.Append("EditorID;Type;Name;Stages;Stages Text\r\n");
+            quests?.Append("FormID;EditorID;Type;Name;Stages;Stages Text\r\n");
 
             Console.WriteLine($"Processing Quests Patch:\r\n" +
                 $" + Overrides count is {questOverride.Count}\r\n" +
@@ -83,6 +83,31 @@ namespace RequiemExperience
                     patchQ.Type = lookup.Values.ElementAt(0);
                     anyQuests = true;
                 }
+                else if (lookup.Count > 1)
+                {
+                    Console.WriteLine("WARN: Found more than one match for " + quest.EditorID);
+                }
+
+                if (key != null && patchQ != null)
+                {
+                    bool foundFail = false, foundCmpl = false;
+                    foreach (var stage in patchQ.Stages)
+                    {
+                        foreach (var loge in stage.LogEntries)
+                        {
+                            foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
+                            foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+                        }
+                    }
+                    if (!foundCmpl)
+                    {
+                        Console.WriteLine("WARN: No log entries flagged with CompleteQuest for " + quest.EditorID);
+                    }
+                    if (!foundFail)
+                    {
+                        Console.WriteLine("WARN: No log entries flagged with FailQuest for " + quest.EditorID);
+                    }
+                }
 
                 if (key != null && patchQ != null && radiantExcl != null && questCond.TryGetValue(key, out var condition))
                 {
@@ -104,7 +129,12 @@ namespace RequiemExperience
 
                 if (quests != null)
                 {
-                    quests?.Append(quest.EditorID + ";" + quest.Type + ";\"" + (quest.Name?.ToString() ?? "null").Replace('"', '-') + "\";" + quest.Objectives.Count + ";\"");
+                    quests?.Append(
+                        "[" + quest.FormKey.ModKey.FileName + "] XX" + quest.FormKey.IDString() + ";"
+                        + quest.EditorID + ";" + quest.Type
+                        + ";\"" + (quest.Name?.ToString() ?? "null").Replace('"', '-')
+                        + "\";" + quest.Objectives.Count + ";\""
+                    );
                     foreach (var obj in quest.Objectives)
                     {
                         quests?.Append((obj.DisplayText?.ToString() ?? "null").Replace('"', '-') + ", ");
