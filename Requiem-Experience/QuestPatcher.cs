@@ -105,7 +105,7 @@ namespace RequiemExperience
                     }
                     if (!foundFail)
                     {
-                        Console.WriteLine("WARN: No log entries flagged with FailQuest for " + quest.EditorID);
+                        Console.WriteLine("INFO: No log entries flagged with FailQuest for " + quest.EditorID);
                     }
                 }
 

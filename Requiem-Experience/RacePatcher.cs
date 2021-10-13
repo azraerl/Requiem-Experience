@@ -121,7 +121,7 @@ namespace RequiemExperience
                     {
                         if (unique && npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique))
                         {
-                            Console.WriteLine($"Info: {npc.EditorID} is already unique, regex is an overhead");
+                            Console.WriteLine($"INFO: {npc.EditorID} is already unique, regex is an overhead");
                         }
                         unique |= npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique);
                     } else
