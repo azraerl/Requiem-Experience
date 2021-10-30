@@ -27,8 +27,8 @@ namespace RequiemExperience
 
             string settingsFile = state.ExtraSettingsDataPath + @"\QuestSettings.json";
             var questOverride = new Dictionary<Regex, Quest.TypeEnum>();
-            var completeFlags = new Dictionary<Regex, int>();
-            var failFlags = new Dictionary<Regex, int>();
+            var completeFlags = new Dictionary<Regex, int[]>();
+            var failFlags = new Dictionary<Regex, int[]>();
             var questCond = new Dictionary<string, string>();
             if (!File.Exists(settingsFile))
             {
@@ -49,7 +49,7 @@ namespace RequiemExperience
                         );
                     }
                 }
-                var cf = settingJson["CompleteFlags"]?.ToObject<Dictionary<string, int>>();
+                var cf = settingJson["CompleteFlags"]?.ToObject<Dictionary<string, int[]>>();
                 if (cf != null)
                 {
                     foreach (var f in cf)
@@ -59,7 +59,7 @@ namespace RequiemExperience
                         );
                     }
                 }
-                var ff = settingJson["FailFlags"]?.ToObject<Dictionary<string, int>>();
+                var ff = settingJson["FailFlags"]?.ToObject<Dictionary<string, int[]>>();
                 if (ff != null)
                 {
                     foreach (var f in ff)
@@ -116,8 +116,8 @@ namespace RequiemExperience
                     bool foundFail = false, foundCmpl = false;
                     foreach (var stage in patchQ.Stages)
                     {
-                        bool setComplete = completeFlags.Where(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
-                        bool setFail = failFlags.Where(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                        bool setComplete = completeFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                        bool setFail = failFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
                         foreach (var loge in stage.LogEntries)
                         {
                             if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
@@ -140,6 +140,7 @@ namespace RequiemExperience
                     if (!foundCmpl)
                     {
                         Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                        patchQ.Type = Quest.TypeEnum.Misc;
                     }
                     if (!foundFail)
                     {

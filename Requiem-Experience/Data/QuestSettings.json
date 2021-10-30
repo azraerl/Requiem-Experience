@@ -69,13 +69,12 @@
 	"Condition": {
 	},
 	"FailFlags": {
-		"_M_Quest.*": 105,
-		"Freeform.*": 250
+		"_M_Quest.*": [105],
+		"Freeform.*": [250]
 	},
 	"CompleteFlags": {
-		"_M_Quest.*": 100,
-		"BQ0[1234]" : 200,
-		"Freeform.*": 100,
-		"Freeform.*": 200
+		"_M_Quest.*": [100],
+		"BQ0[1234]" : [200],
+		"Freeform.*": [100, 200]
 	}
 }
