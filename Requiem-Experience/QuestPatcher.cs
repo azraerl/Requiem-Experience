@@ -27,6 +27,8 @@ namespace RequiemExperience
 
             string settingsFile = state.ExtraSettingsDataPath + @"\QuestSettings.json";
             var questOverride = new Dictionary<Regex, Quest.TypeEnum>();
+            var completeFlags = new Dictionary<Regex, int>();
+            var failFlags = new Dictionary<Regex, int>();
             var questCond = new Dictionary<string, string>();
             if (!File.Exists(settingsFile))
             {
@@ -37,13 +39,33 @@ namespace RequiemExperience
                 var settingJson = JObject.Parse(File.ReadAllText(settingsFile));
                 questCond = settingJson["Condition"]?.ToObject<Dictionary<string, string>>() ?? questCond;
                 var ov = settingJson["Override"]?.ToObject<Dictionary<string, string>>();
-                if ( ov != null)
+                if (ov != null)
                 {
                     foreach (var qo in ov)
                     {
                         questOverride.Add(
                             new Regex("^" + qo.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline),
                             (Quest.TypeEnum)Enum.Parse(typeof(Quest.TypeEnum), qo.Value)
+                        );
+                    }
+                }
+                var cf = settingJson["CompleteFlags"]?.ToObject<Dictionary<string, int>>();
+                if (cf != null)
+                {
+                    foreach (var f in cf)
+                    {
+                        completeFlags.Add(
+                            new Regex("^" + f.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline), f.Value
+                        );
+                    }
+                }
+                var ff = settingJson["FailFlags"]?.ToObject<Dictionary<string, int>>();
+                if (ff != null)
+                {
+                    foreach (var f in ff)
+                    {
+                        failFlags.Add(
+                            new Regex("^" + f.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline), f.Value
                         );
                     }
                 }
@@ -94,19 +116,34 @@ namespace RequiemExperience
                     bool foundFail = false, foundCmpl = false;
                     foreach (var stage in patchQ.Stages)
                     {
+                        bool setComplete = completeFlags.Select(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                        bool setFail = failFlags.Select(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
                         foreach (var loge in stage.LogEntries)
                         {
-                            foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
-                            foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+                            if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
+                            {
+                                loge.Flags = QuestLogEntry.Flag.FailQuest;
+                                foundFail = true;
+                            }
+                            else if (setComplete && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.CompleteQuest)
+                            {
+                                loge.Flags = QuestLogEntry.Flag.CompleteQuest;
+                                foundCmpl = true;
+                            }
+                            else
+                            {
+                                foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
+                                foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+                            }
                         }
                     }
                     if (!foundCmpl)
                     {
-                        Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for ${quest.EditorID} [${quest.FormKey.ModKey}:${quest.FormKey.ID:X}]");
+                        Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                     }
                     if (!foundFail)
                     {
-                        Console.WriteLine($@"INFO: No log entries flagged with FailQuest for ${quest.EditorID} [${quest.FormKey.ModKey}:${quest.FormKey.ID:X}]");
+                        Console.WriteLine($@"INFO: No log entries flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                     }
                 }
 
