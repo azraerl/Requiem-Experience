@@ -116,8 +116,8 @@ namespace RequiemExperience
                     bool foundFail = false, foundCmpl = false;
                     foreach (var stage in patchQ.Stages)
                     {
-                        bool setComplete = completeFlags.Select(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
-                        bool setFail = failFlags.Select(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                        bool setComplete = completeFlags.Where(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                        bool setFail = failFlags.Where(x => x.Value == stage.Index && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
                         foreach (var loge in stage.LogEntries)
                         {
                             if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
