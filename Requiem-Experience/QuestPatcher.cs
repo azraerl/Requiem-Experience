@@ -69,6 +69,7 @@ namespace RequiemExperience
             foreach (var quest in state.LoadOrder.PriorityOrder.WinningOverrides<IQuestGetter>())
             {
                 if (quest.EditorID == null) continue;
+                if (quest.Stages.Count == 0) continue;
 
                 string? key = null;
                 Quest? patchQ = null;
@@ -101,11 +102,11 @@ namespace RequiemExperience
                     }
                     if (!foundCmpl)
                     {
-                        Console.WriteLine("WARN: No log entries flagged with CompleteQuest for " + quest.EditorID);
+                        Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for ${quest.EditorID} [${quest.FormKey.ModKey}:${quest.FormKey.ID:X}]");
                     }
                     if (!foundFail)
                     {
-                        Console.WriteLine("INFO: No log entries flagged with FailQuest for " + quest.EditorID);
+                        Console.WriteLine($@"INFO: No log entries flagged with FailQuest for ${quest.EditorID} [${quest.FormKey.ModKey}:${quest.FormKey.ID:X}]");
                     }
                 }
 
