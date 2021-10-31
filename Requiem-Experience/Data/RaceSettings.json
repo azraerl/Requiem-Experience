@@ -58,6 +58,8 @@
 	},
 	"Override": {
 		"DLC2MiraakRace": 350,
+		"SnowElfRace": 75,
+		"DLC2AshSpawnRace": 35,
 		"AtronachFlameRace": 30,
 		"SabreCatSnowyRace": 22,
 		"SprigganRace": 18,
