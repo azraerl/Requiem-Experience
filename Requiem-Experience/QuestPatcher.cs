@@ -137,18 +137,18 @@ namespace RequiemExperience
                                 if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
                                 {
                                     loge.Flags = QuestLogEntry.Flag.FailQuest;
-                                    if (foundFail)
+                                    if (foundFail && quests != null)
                                     {
-                                        Console.WriteLine($@"WARN: 2nd log entry flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                        Console.WriteLine($@"WARN: Multiple log entry flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                                     }
                                     foundFail = true;
                                 }
                                 else if (setComplete && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.CompleteQuest)
                                 {
                                     loge.Flags = QuestLogEntry.Flag.CompleteQuest;
-                                    if (foundCmpl)
+                                    if (foundCmpl && quests != null)
                                     {
-                                        Console.WriteLine($@"WARN: 2nd log entry flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                        Console.WriteLine($@"WARN: Multiple log entry flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                                     }
                                     foundCmpl = true;
                                 }
@@ -160,7 +160,7 @@ namespace RequiemExperience
                     {
                         Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                     }
-                    if (!foundFail)
+                    if (!foundFail && quests != null)
                     {
                         Console.WriteLine($@"INFO: No log entries flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                     }

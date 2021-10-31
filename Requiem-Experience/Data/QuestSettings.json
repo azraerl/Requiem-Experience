@@ -70,8 +70,7 @@
 	},
 	"FailFlags": {
 		"_M_Quest.*": [105],
-		"Freeform.*": [250, 255],
-		"FreeformDragonBridge01": [300]
+		"Freeform.*": [250, 255, 300]
 	},
 	"CompleteFlags": {
 		"_M_Quest.*": [100],

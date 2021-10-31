@@ -59,8 +59,10 @@
 	"Override": {
 		"DLC2MiraakRace": 350,
 		"AtronachFlameRace": 30,
+		"SabreCatSnowyRace": 22,
+		"SprigganRace": 18,
 		"SkeletonNecroRace": 15,
-		"SabreCat": 15,
+		"SabreCatRace": 15,
 		"FoxRace": 1,
 		"ChickenRace": 1,
 		"DefaultRace": 1
