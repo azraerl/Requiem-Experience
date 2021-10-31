@@ -70,11 +70,16 @@
 	},
 	"FailFlags": {
 		"_M_Quest.*": [105],
-		"Freeform.*": [250]
+		"Freeform.*": [250, 255],
+		"FreeformDragonBridge01": [300]
 	},
 	"CompleteFlags": {
 		"_M_Quest.*": [100],
 		"BQ0[1234]" : [200],
-		"Freeform.*": [100, 200]
+		"Freeform.*": [100, 200],
+		"FreeformMarkarth[OEJ]": [20],
+		"FreeformDragonBridge01": [20, 25],
+		"FreeformHighHrothgarA": [20],
+		"FreeformSkyhavenTempleA": [50]
 	}
 }

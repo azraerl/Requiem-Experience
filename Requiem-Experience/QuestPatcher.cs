@@ -92,6 +92,7 @@ namespace RequiemExperience
             {
                 if (quest.EditorID == null) continue;
                 if (quest.Stages.Count == 0) continue;
+                if (quest.Objectives.Count == 0) continue;
 
                 string? key = null;
                 Quest? patchQ = null;
