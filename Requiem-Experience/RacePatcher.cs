@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Statistics;
 using Mutagen.Bethesda;
+using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Newtonsoft.Json.Linq;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace RequiemExperience
 {
@@ -193,60 +193,47 @@ namespace RequiemExperience
                 npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + key + val + (unique ? " unique" : "") + "\r\n");
             }
 
-            var racesPlugins = new SortedDictionary<Mutagen.Bethesda.Plugins.ModKey, StringBuilder>();
+            var racesPlugins = new SortedDictionary<string, SortedSet<string>>();
             foreach (var race in state.LoadOrder.PriorityOrder.WinningOverrides<IRaceGetter>())
             {
-                StringBuilder races;
-                if (racesPlugins.ContainsKey(race.FormKey.ModKey))
+                SortedSet<string> races;
+                var modKey = race.FormKey.ModKey.ToString();
+                if (racesPlugins.ContainsKey(modKey))
                 {
-                    races = racesPlugins[race.FormKey.ModKey];
+                    races = racesPlugins[modKey];
                 }
                 else
                 {
-                    races = new StringBuilder(10 * 1024);
-                    racesPlugins.Add(race.FormKey.ModKey, races);
+                    races = new();
+                    racesPlugins.Add(modKey, races);
                 }
 
                 if (racesOverrs.TryGetValue(race.EditorID ?? "null", out int overrid))
                 {
-                    races.Append(race.EditorID);
-                    races.Append('=');
-                    races.Append(Express(overrid, exp));
-                    races.Append('\n');
+                    races.Add($@"{race.EditorID}={Express(overrid, exp)}");
                 }
                 else if (RaceGroupLookup(raceGroups, race.EditorID, out var key, out var val)
                     && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
-                    races.Append(race.EditorID);
-                    races.Append('=');
-                    races.Append(Express(Average(glevels, Settings.RacesSettings.Mode), exp));
-                    races.Append('\n');
+                    races.Add($@"{race.EditorID}={Express(Average(glevels, Settings.RacesSettings.Mode), exp)}");
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
-                    races.Append(race.EditorID);
-                    races.Append('=');
-                    races.Append(Express(Average(levels, Settings.RacesSettings.Mode), exp));
-                    races.Append('\n');
+                    races.Add($@"{race.EditorID}={Express(Average(levels, Settings.RacesSettings.Mode), exp)}");
                 }
                 else if (race.Starting.TryGetValue(BasicStat.Health, out var startingHealth))
                 {
                     // fallback for races which don't have NPCs defined
-                    races.Append(race.EditorID);
-                    races.Append('=');
-                    races.Append(Express(Math.Sqrt(startingHealth), exp));
-                    races.Append('\n');
+                    races.Add($@"{race.EditorID}={Express(Math.Sqrt(startingHealth), exp)}");
                 }
             }
 
             var racesOutput = new StringBuilder(100 * 1024); // 100 KiB
             foreach (var rk in racesPlugins)
             {
-                racesOutput
-                    .Append('[').Append(rk.Key.ToString()).Append(']')
-                    .Append('\n')
-                    .Append(rk.Value)
-                    .Append('\n');
+                racesOutput.AppendLine($@"[{rk.Key}]");
+                foreach (var l in rk.Value) racesOutput.AppendLine(l);
+                racesOutput.AppendLine();
             }
 
             var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience\";
@@ -319,5 +306,6 @@ namespace RequiemExperience
             }
             return false;
         }
+
     }
 }
