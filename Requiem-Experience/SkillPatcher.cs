@@ -14,7 +14,7 @@ namespace RequiemExperience
     [SupportedOSPlatform("windows10")]
     class SkillPatcher
     {
-        private static HashSet<string> skills = new HashSet<string>();
+        private static readonly HashSet<string> skills = new();
         static SkillPatcher()
         {
             skills.Add("AVAlteration");

@@ -117,31 +117,48 @@ namespace RequiemExperience
                     bool foundFail = false, foundCmpl = false;
                     foreach (var stage in patchQ.Stages)
                     {
-                        bool setComplete = completeFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
-                        bool setFail = failFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
                         foreach (var loge in stage.LogEntries)
                         {
-                            if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
+
+                            foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
+                            foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+
+                        }
+                    }
+
+                    if (!foundCmpl || !foundFail)
+                    {
+                        foreach (var stage in patchQ.Stages)
+                        {
+                            bool setComplete = completeFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                            bool setFail = failFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                            foreach (var loge in stage.LogEntries)
                             {
-                                loge.Flags = QuestLogEntry.Flag.FailQuest;
-                                foundFail = true;
-                            }
-                            else if (setComplete && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.CompleteQuest)
-                            {
-                                loge.Flags = QuestLogEntry.Flag.CompleteQuest;
-                                foundCmpl = true;
-                            }
-                            else
-                            {
-                                foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
-                                foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+                                if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
+                                {
+                                    loge.Flags = QuestLogEntry.Flag.FailQuest;
+                                    if (foundFail)
+                                    {
+                                        Console.WriteLine($@"WARN: 2nd log entry flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                    }
+                                    foundFail = true;
+                                }
+                                else if (setComplete && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.CompleteQuest)
+                                {
+                                    loge.Flags = QuestLogEntry.Flag.CompleteQuest;
+                                    if (foundCmpl)
+                                    {
+                                        Console.WriteLine($@"WARN: 2nd log entry flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                    }
+                                    foundCmpl = true;
+                                }
                             }
                         }
                     }
+
                     if (!foundCmpl)
                     {
                         Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
-                        patchQ.Type = Quest.TypeEnum.Misc;
                     }
                     if (!foundFail)
                     {
