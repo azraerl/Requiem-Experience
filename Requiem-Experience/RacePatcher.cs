@@ -231,7 +231,14 @@ namespace RequiemExperience
             var racesOutput = new StringBuilder(100 * 1024); // 100 KiB
             foreach (var rk in racesPlugins)
             {
-                racesOutput.AppendLine($@"[{rk.Key}]");
+                if (rk.Key.Equals("Synthesis.esp"))
+                {
+                    racesOutput.AppendLine($@"[{Settings.RacesSettings.TargetPlugin}]");
+                }
+                else
+                {
+                    racesOutput.AppendLine($@"[{rk.Key}]");
+                }
                 foreach (var l in rk.Value) racesOutput.AppendLine(l);
                 racesOutput.AppendLine();
             }

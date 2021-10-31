@@ -61,6 +61,9 @@ namespace RequiemExperience
         [SynthesisTooltip("Output file, default value means to overwrite the one which comes with Experience mod")]
         public string OutputFile = "Default.ini";
 
+        [SynthesisTooltip("This has to match output plugin, if patcher is located in non default Synthesis group")]
+        public string TargetPlugin = "Synthesis.esp";
+
         [SynthesisTooltip("Use Unique flag on NPC records if NPC level above threshold")]
         public int NPCUniqueFlagThreshold = 20;
 
