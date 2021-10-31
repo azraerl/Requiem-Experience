@@ -59,7 +59,7 @@ namespace RequiemExperience
         public bool PatchRaces = true;
 
         [SynthesisTooltip("Output file, default value means to overwrite the one which comes with Experience mod")]
-        public string OutputFile = "DefaultRaces";
+        public string OutputFile = "Default.ini";
 
         [SynthesisTooltip("Use Unique flag on NPC records if NPC level above threshold")]
         public int NPCUniqueFlagThreshold = 20;

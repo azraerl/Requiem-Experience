@@ -75,11 +75,16 @@ namespace RequiemExperience
                 $" + Level Expression is {Settings.RacesSettings.LevelFormula}\r\n" +
                 $" + Debug = {npcs != null}");
 
-            var races = new StringBuilder(100*1024); // 100 KiB
             var racesLevels = new Dictionary<string, ICollection<double>>();
 
             foreach (var npc in state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>())
             {
+                if (npc.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Stats))
+                {
+                    npcs?.Append(npc.EditorID + ",?,?,skipped\r\n");
+                    continue;
+                }
+
                 var ignore = npc.EditorID == null || ignoredNPCs.Any(x => x.IsMatch(npc.EditorID));
                 if( ignore )
                 {
@@ -90,11 +95,11 @@ namespace RequiemExperience
                 int level = 0;
                 if (npc.Configuration.Level is IPcLevelMult)
                 {
-                    /*level = npc.Configuration.CalcMinLevel;
+                    level = npc.Configuration.CalcMinLevel;
                     if (npc.Configuration.CalcMaxLevel != 0)
                     {
                         level = (level + npc.Configuration.CalcMaxLevel) / 2;
-                    }*/
+                    }
                 }
                 else if (npc.Configuration.Level is INpcLevelGetter npcLevel)
                 {
@@ -188,12 +193,24 @@ namespace RequiemExperience
                 npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + key + val + (unique ? " unique" : "") + "\r\n");
             }
 
+            var racesPlugins = new SortedDictionary<Mutagen.Bethesda.Plugins.ModKey, StringBuilder>();
             foreach (var race in state.LoadOrder.PriorityOrder.WinningOverrides<IRaceGetter>())
             {
+                StringBuilder races;
+                if (racesPlugins.ContainsKey(race.FormKey.ModKey))
+                {
+                    races = racesPlugins[race.FormKey.ModKey];
+                }
+                else
+                {
+                    races = new StringBuilder(10 * 1024);
+                    racesPlugins.Add(race.FormKey.ModKey, races);
+                }
+
                 if (racesOverrs.TryGetValue(race.EditorID ?? "null", out int overrid))
                 {
                     races.Append(race.EditorID);
-                    races.Append(',');
+                    races.Append('=');
                     races.Append(Express(overrid, exp));
                     races.Append('\n');
                 }
@@ -201,14 +218,14 @@ namespace RequiemExperience
                     && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
                     races.Append(race.EditorID);
-                    races.Append(',');
+                    races.Append('=');
                     races.Append(Express(Average(glevels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
                     races.Append(race.EditorID);
-                    races.Append(',');
+                    races.Append('=');
                     races.Append(Express(Average(levels, Settings.RacesSettings.Mode), exp));
                     races.Append('\n');
                 }
@@ -216,17 +233,27 @@ namespace RequiemExperience
                 {
                     // fallback for races which don't have NPCs defined
                     races.Append(race.EditorID);
-                    races.Append(',');
+                    races.Append('=');
                     races.Append(Express(Math.Sqrt(startingHealth), exp));
                     races.Append('\n');
                 }
             }
 
+            var racesOutput = new StringBuilder(100 * 1024); // 100 KiB
+            foreach (var rk in racesPlugins)
+            {
+                racesOutput
+                    .Append('[').Append(rk.Key.ToString()).Append(']')
+                    .Append('\n')
+                    .Append(rk.Value)
+                    .Append('\n');
+            }
+
             var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience\";
             Console.WriteLine($@"Creating folder: {outputPath}Races\");
             Directory.CreateDirectory($@"{outputPath}Races\");
-            Console.WriteLine($@"Writing races patch: {outputPath}Races\{Settings.RacesSettings.OutputFile}.csv");
-            File.WriteAllText($@"{outputPath}Races\{Settings.RacesSettings.OutputFile}.csv", races.ToString());
+            Console.WriteLine($@"Writing races patch: {outputPath}Races\{Settings.RacesSettings.OutputFile}");
+            File.WriteAllText($@"{outputPath}Races\{Settings.RacesSettings.OutputFile}", racesOutput.ToString());
 
             if (npcs != null)
             {
