@@ -18,6 +18,13 @@
 		"TGRNT": "SideQuest",
 		"CR0[123456789]": "SideQuest",
 		"CR1[014]": "SideQuest",
+		"T0[123]": "SideQuest",
+		"dunHighGateRuinsQST": "SideQuest",
+		"MS06Start": "SideQuest",
+		"dunNchuandZelQst": "SideQuest",
+		"dunGauldursonQST": "SideQuest",
+		"dunHillgrundsTombQST": "SideQuest",
+		"dunForelhostQST": "SideQuest",
 
 		"Freeform.*": "SideQuest",
 

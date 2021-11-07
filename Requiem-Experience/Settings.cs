@@ -24,6 +24,12 @@ namespace RequiemExperience
         [SynthesisTooltip("Do Quests patching as per below - no race/kill-xp changes will be done if this is disabled.")]
         public bool PatchQuests = true;
 
+        [SynthesisTooltip("Base Level UP XP required per level")]
+        public int LevelUpXPBase = 100;
+
+        [SynthesisTooltip("Multiplied Level UP XP required per level")]
+        public int LevelUpXPMult = 50;
+
         [SynthesisSettingName("Preset for Experience")]
         [SynthesisTooltip("Apply (overwrite if exists) Experience.ini with preset\r\nNone - do not overwrite\r\nTrue Unlevelled - Killing XP values do not change\r\nExtra Rewarding - Killing XP values the bigger the higher enemies you hunt")]
         public ExperiencePreset Preset = ExperiencePreset.TrueUnlevelled;
@@ -60,9 +66,6 @@ namespace RequiemExperience
 
         [SynthesisTooltip("Output file, default value means to overwrite the one which comes with Experience mod")]
         public string OutputFile = "Default.ini";
-
-        [SynthesisTooltip("This has to match output plugin, if patcher is located in non default Synthesis group")]
-        public string TargetPlugin = "Synthesis.esp";
 
         [SynthesisTooltip("Use Unique flag on NPC records if NPC level above threshold")]
         public int NPCUniqueFlagThreshold = 20;

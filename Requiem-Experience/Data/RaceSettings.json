@@ -26,7 +26,6 @@
 		"DLC1EncGargoyleSummon2"
 	],
 	"Unique": [
-		"RWT_SirCrabalot",
 		".*SlaughterfishGiant.*",
 		".*MudcrabGigantic",
 		".*GorakTheTrollslayer",
@@ -39,8 +38,6 @@
 		"REQ_Actor_Thunder",
 		"IDB_AA000XarrianUniqueRagnok",
 		"REQ_Actor_Ragnok",
-		"JRDLC01SoulCairnReaper",
-		"DLC01SoulCairnReaper",
 		"dunMS06PotemaSkeleton",
 		"IDB_AA000XarrianUniqueSnow",
 		"MS06Potema",
@@ -48,8 +45,6 @@
 		"dunKatariahLvlPenitusOculatusLieutenant",
 		"DBM_dunWindPassWindcallerSpiderBoss",
 		"DLC2dunHorkerIslandEncHorker",
-		"dunHunter.*",
-		"DLC2EbonyWarrior",
 		"VampireVigilantTolan",
 		".*Boss.*"
 	],
@@ -57,7 +52,7 @@
 		"StopRacism": [ "Argonian", "Breton", "DarkElf", "HighElf", "Imperial", "Khajiit", "Nord", "Orc", "Redguard", "WoodElf" ]
 	},
 	"Override": {
-		"DLC2MiraakRace": 350,
+		"DLC2MiraakRace": 300,
 		"SnowElfRace": 75,
 		"DLC2AshSpawnRace": 35,
 		"AtronachFlameRace": 30,

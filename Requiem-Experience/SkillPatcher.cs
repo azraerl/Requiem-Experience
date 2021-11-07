@@ -55,7 +55,10 @@ namespace RequiemExperience
                                 pavi.Skill.UseMult = 0.0f;
                                 pavi.Skill.OffsetMult = 0.0f;
                                 pavi.Skill.ImproveOffset = 9999.0f;
-                                Console.WriteLine($@"{pavi.EditorID}: UseMult [{avi.Skill.UseMult} => {pavi.Skill.UseMult}] OffsetMult [{avi.Skill.OffsetMult} => {pavi.Skill.OffsetMult}] ImproveOffset [{avi.Skill.ImproveOffset} => {pavi.Skill.ImproveOffset}]");
+                                if (Settings.General.Debug)
+                                {
+                                    Console.WriteLine($@"{pavi.EditorID}: UseMult [{avi.Skill.UseMult} => {pavi.Skill.UseMult}] OffsetMult [{avi.Skill.OffsetMult} => {pavi.Skill.OffsetMult}] ImproveOffset [{avi.Skill.ImproveOffset} => {pavi.Skill.ImproveOffset}]");
+                                }
                             }
                         }
                     }

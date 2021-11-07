@@ -31,6 +31,14 @@ namespace RequiemExperience
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             bool patched = false;
+
+            // Add new game setting to patch: "fXPLevelUpBase"
+            state.PatchMod.GameSettings.Add(new GameSettingFloat(state.PatchMod.GetNextFormKey(), state.PatchMod.SkyrimRelease)
+                { EditorID = "fXPLevelUpBase", Data = Settings.General.LevelUpXPBase });
+            // Add new game setting to patch: "fXPLevelUpMult"
+            state.PatchMod.GameSettings.Add(new GameSettingFloat(state.PatchMod.GetNextFormKey(), state.PatchMod.SkyrimRelease)
+                { EditorID = "fXPLevelUpMult", Data = Settings.General.LevelUpXPMult });
+
             patched |= QuestPatcher.RunPatch(state, Settings);
             patched |= RacePatcher.RunPatch(state, Settings);
             patched |= SkillPatcher.RunPatch(state, Settings);
