@@ -76,6 +76,7 @@ namespace RequiemExperience
                 $" + Debug = {npcs != null}");
 
             var racesLevels = new Dictionary<string, ICollection<double>>();
+            var actorPlugins = new SortedDictionary<string, SortedSet<string>>();
 
             foreach (var npc in state.LoadOrder.PriorityOrder.WinningOverrides<INpcGetter>())
             {
@@ -135,9 +136,9 @@ namespace RequiemExperience
                         unique = false;
                     }
 
-                    if (unique)
+                    if (unique && level > 0)
                     {
-                        var otherFormLists = state.LoadOrder.PriorityOrder.WinningOverrides<IFormListGetter>()
+                        /*var otherFormLists = state.LoadOrder.PriorityOrder.WinningOverrides<IFormListGetter>()
                             .Where(x => x.ContainedFormLinks.Any(y => race.FormKey == y.FormKey))
                             .Select(x => state.PatchMod.FormLists.GetOrAddAsOverride(x));
 
@@ -163,7 +164,14 @@ namespace RequiemExperience
                             {
                                 otherFormList.Items.Add(newRace);
                             }
+                        }*/
+                        if (!actorPlugins.ContainsKey(npc.FormKey.ModKey.ToString()))
+                        {
+                            actorPlugins.Add(npc.FormKey.ModKey.ToString(), new());
                         }
+                        actorPlugins[npc.FormKey.ModKey.ToString()]
+                            .Add($@"; {npc.EditorID} ""{npc.Name}""{Environment.NewLine}00{npc.FormKey.IDString()}={Express(level, exp)}");
+
                         any = true;
                     }
 
@@ -210,21 +218,21 @@ namespace RequiemExperience
 
                 if (racesOverrs.TryGetValue(race.EditorID ?? "null", out int overrid))
                 {
-                    races.Add($@"{race.EditorID}={Express(overrid, exp)}");
+                    races.Add($@"; {race.EditorID} ""{race.Name}""{Environment.NewLine}00{race.FormKey.IDString()}={Express(overrid, exp)}");
                 }
                 else if (RaceGroupLookup(raceGroups, race.EditorID, out var key, out var val)
                     && racesLevels.TryGetValue(key + val, out var glevels) && glevels.Any())
                 {
-                    races.Add($@"{race.EditorID}={Express(Average(glevels, Settings.RacesSettings.Mode), exp)}");
+                    races.Add($@"; {race.EditorID} ""{race.Name}""{Environment.NewLine}00{race.FormKey.IDString()}={Express(Average(glevels, Settings.RacesSettings.Mode), exp)}");
                 }
                 else if (racesLevels.TryGetValue(race.EditorID ?? "null", out var levels) && levels.Any())
                 {
-                    races.Add($@"{race.EditorID}={Express(Average(levels, Settings.RacesSettings.Mode), exp)}");
+                    races.Add($@"; {race.EditorID} ""{race.Name}""{Environment.NewLine}00{race.FormKey.IDString()}={Express(Average(levels, Settings.RacesSettings.Mode), exp)}");
                 }
                 else if (race.Starting.TryGetValue(BasicStat.Health, out var startingHealth))
                 {
                     // fallback for races which don't have NPCs defined
-                    races.Add($@"{race.EditorID}={Express(Math.Sqrt(startingHealth), exp)}");
+                    races.Add($@"; {race.EditorID} ""{race.Name}""{Environment.NewLine}00{race.FormKey.IDString()}={Express(Math.Sqrt(startingHealth), exp)}");
                 }
             }
 
@@ -242,12 +250,29 @@ namespace RequiemExperience
                 foreach (var l in rk.Value) racesOutput.AppendLine(l);
                 racesOutput.AppendLine();
             }
+            var actorsOutput = new StringBuilder(100 * 1024);
+            foreach (var ak in actorPlugins)
+            {
+                if (ak.Key.Equals("Synthesis.esp"))
+                {
+                    actorsOutput.AppendLine($@"[{Settings.RacesSettings.TargetPlugin}]");
+                }
+                else
+                {
+                    actorsOutput.AppendLine($@"[{ak.Key}]");
+                }
+                foreach (var l in ak.Value) actorsOutput.AppendLine(l);
+                actorsOutput.AppendLine();
+            }
+
 
             var outputPath = $@"{state.DataFolderPath}\SKSE\Plugins\Experience\";
             Console.WriteLine($@"Creating folder: {outputPath}Races\");
             Directory.CreateDirectory($@"{outputPath}Races\");
             Console.WriteLine($@"Writing races patch: {outputPath}Races\{Settings.RacesSettings.OutputFile}");
             File.WriteAllText($@"{outputPath}Races\{Settings.RacesSettings.OutputFile}", racesOutput.ToString());
+            Console.WriteLine($@"Writing actors patch: {outputPath}Actors\{Settings.RacesSettings.OutputFile}");
+            File.WriteAllText($@"{outputPath}Actors\{Settings.RacesSettings.OutputFile}", actorsOutput.ToString());
 
             if (npcs != null)
             {
