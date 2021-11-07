@@ -239,28 +239,14 @@ namespace RequiemExperience
             var racesOutput = new StringBuilder(100 * 1024); // 100 KiB
             foreach (var rk in racesPlugins)
             {
-                if (rk.Key.Equals("Synthesis.esp"))
-                {
-                    racesOutput.AppendLine($@"[{Settings.RacesSettings.TargetPlugin}]");
-                }
-                else
-                {
-                    racesOutput.AppendLine($@"[{rk.Key}]");
-                }
+                racesOutput.AppendLine($@"[{rk.Key}]");
                 foreach (var l in rk.Value) racesOutput.AppendLine(l);
                 racesOutput.AppendLine();
             }
             var actorsOutput = new StringBuilder(100 * 1024);
             foreach (var ak in actorPlugins)
             {
-                if (ak.Key.Equals("Synthesis.esp"))
-                {
-                    actorsOutput.AppendLine($@"[{Settings.RacesSettings.TargetPlugin}]");
-                }
-                else
-                {
-                    actorsOutput.AppendLine($@"[{ak.Key}]");
-                }
+                actorsOutput.AppendLine($@"[{ak.Key}]");
                 foreach (var l in ak.Value) actorsOutput.AppendLine(l);
                 actorsOutput.AppendLine();
             }
