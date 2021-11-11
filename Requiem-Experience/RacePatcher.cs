@@ -170,8 +170,8 @@ namespace RequiemExperience
                             actorPlugins.Add(npc.FormKey.ModKey.ToString(), new());
                         }
                         actorPlugins[npc.FormKey.ModKey.ToString()]
-                            .Add($@"; {npc.EditorID} ""{npc.Name}""{Environment.NewLine}00{npc.FormKey.IDString()}={Express(level, exp)}");
-
+                            .Add($@"; {npc.EditorID} ""{npc.Name}"" | {race.EditorID} : 00{race.FormKey.IDString()}"+
+                                 $@"{Environment.NewLine}00{npc.FormKey.IDString()}={Express(level, exp)}");
                         any = true;
                     }
 
