@@ -1,6 +1,7 @@
 ﻿using Mutagen.Bethesda;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,19 +19,67 @@ namespace RequiemExperience
     {
         public static bool RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Settings Settings)
         {
-            Console.WriteLine($@"Settings.QuestSettings.PatchQuests is {Settings.QuestSettings.PatchQuests}");
-            if (!Settings.QuestSettings.PatchQuests)
+            Console.WriteLine($@"Settings.QuestSettings.PatchQuests is {Settings.General.PatchQuests}");
+            if (!Settings.General.PatchQuests)
             {
                 return false;
             }
 
+            string settingsFile = state.ExtraSettingsDataPath + @"\QuestSettings.json";
+            var questOverride = new Dictionary<Regex, Quest.TypeEnum>();
+            var completeFlags = new Dictionary<Regex, int[]>();
+            var failFlags = new Dictionary<Regex, int[]>();
+            var questCond = new Dictionary<string, string>();
+            if (!File.Exists(settingsFile))
+            {
+                Console.WriteLine("\"QuestSettings.json\" not located in Users Data folder.");
+            }
+            else
+            {
+                var settingJson = JObject.Parse(File.ReadAllText(settingsFile));
+                questCond = settingJson["Condition"]?.ToObject<Dictionary<string, string>>() ?? questCond;
+                var ov = settingJson["Override"]?.ToObject<Dictionary<string, string>>();
+                if (ov != null)
+                {
+                    foreach (var qo in ov)
+                    {
+                        questOverride.Add(
+                            new Regex("^" + qo.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline),
+                            (Quest.TypeEnum)Enum.Parse(typeof(Quest.TypeEnum), qo.Value)
+                        );
+                    }
+                }
+                var cf = settingJson["CompleteFlags"]?.ToObject<Dictionary<string, int[]>>();
+                if (cf != null)
+                {
+                    foreach (var f in cf)
+                    {
+                        completeFlags.Add(
+                            new Regex("^" + f.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline), f.Value
+                        );
+                    }
+                }
+                var ff = settingJson["FailFlags"]?.ToObject<Dictionary<string, int[]>>();
+                if (ff != null)
+                {
+                    foreach (var f in ff)
+                    {
+                        failFlags.Add(
+                            new Regex("^" + f.Key + "$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline), f.Value
+                        );
+                    }
+                }
+            }
+
             StringBuilder? quests = Settings.General.Debug ? new StringBuilder() : null;
-            quests?.Append("EditorID;Type;Name;Stages;Stages Text\r\n");
+            quests?.Append("FormID;EditorID;Type;Name;Stages;Stages Text\r\n");
 
-            Console.WriteLine($"Processing Quests Patch:\r\n + Overrides count is {Settings.QuestSettings.QuestRules.Count}\r\n + Conditions count is {Settings.QuestSettings.QuestConditions.Count}\r\n + Debug = {quests != null}");
+            Console.WriteLine($"Processing Quests Patch:\r\n" +
+                $" + Overrides count is {questOverride.Count}\r\n" +
+                $" + Conditions count is {questCond.Count}\r\n" +
+                $" + Debug = {quests != null}"
+            );
 
-            var questOverride = Settings.QuestSettings.QuestRules.ToDictionary(x => x.name, x => x);
-            var questCond = Settings.QuestSettings.QuestConditions.ToDictionary(x => x.name, x => x.value);
             FormList ? radiantExcl = null;
             if (questCond.Count > 0)
             {
@@ -42,27 +91,78 @@ namespace RequiemExperience
             foreach (var quest in state.LoadOrder.PriorityOrder.WinningOverrides<IQuestGetter>())
             {
                 if (quest.EditorID == null) continue;
+                if (quest.Stages.Count == 0) continue;
+                if (quest.Objectives.Count == 0) continue;
 
                 string? key = null;
                 Quest? patchQ = null;
-                if (questOverride.TryGetValue(quest.EditorID, out var type))
+
+                var lookup = questOverride
+                    .Where(d => d.Key.IsMatch(quest.EditorID) )
+                    .ToDictionary(d => d.Key.ToString(), d => d.Value);
+                if (lookup.Count == 1)
                 {
-                    key = quest.EditorID;
+                    key = lookup.Keys.ElementAt(0);
                     patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                    patchQ.Type = type.asType();
+                    patchQ.Type = lookup.Values.ElementAt(0);
                     anyQuests = true;
                 }
-                else
+                else if (lookup.Count > 1)
                 {
-                    var lookup = questOverride
-                        .Where(d => d.Value.asRegex().IsMatch(quest.EditorID) )
-                        .ToDictionary(d => d.Key, d => d.Value);
-                    if (lookup.Values.Count == 1)
+                    Console.WriteLine("WARN: Found more than one match for " + quest.EditorID);
+                }
+
+                if (key != null && patchQ != null && patchQ.Type != Quest.TypeEnum.Misc)
+                {
+                    bool foundFail = false, foundCmpl = false;
+                    foreach (var stage in patchQ.Stages)
                     {
-                        key = lookup.Keys.ElementAt(0);
-                        patchQ = state.PatchMod.Quests.GetOrAddAsOverride(quest);
-                        patchQ.Type = lookup.Values.ElementAt(0).asType();
-                        anyQuests = true;
+                        foreach (var loge in stage.LogEntries)
+                        {
+
+                            foundFail |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.FailQuest;
+                            foundCmpl |= loge.Flags.HasValue && loge.Flags.Value == QuestLogEntry.Flag.CompleteQuest;
+
+                        }
+                    }
+
+                    if (!foundCmpl || !foundFail)
+                    {
+                        foreach (var stage in patchQ.Stages)
+                        {
+                            bool setComplete = completeFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                            bool setFail = failFlags.Where(x => x.Value.Contains(stage.Index) && x.Key.IsMatch(patchQ.EditorID ?? "NULL")).Any();
+                            foreach (var loge in stage.LogEntries)
+                            {
+                                if (setFail && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.FailQuest)
+                                {
+                                    loge.Flags = QuestLogEntry.Flag.FailQuest;
+                                    if (foundFail && quests != null)
+                                    {
+                                        Console.WriteLine($@"WARN: Multiple log entry flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                    }
+                                    foundFail = true;
+                                }
+                                else if (setComplete && loge.Flags != null && loge.Flags.Value != QuestLogEntry.Flag.CompleteQuest)
+                                {
+                                    loge.Flags = QuestLogEntry.Flag.CompleteQuest;
+                                    if (foundCmpl && quests != null)
+                                    {
+                                        Console.WriteLine($@"WARN: Multiple log entry flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                                    }
+                                    foundCmpl = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!foundCmpl)
+                    {
+                        Console.WriteLine($@"WARN: No log entries flagged with CompleteQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                    }
+                    if (!foundFail && quests != null)
+                    {
+                        Console.WriteLine($@"INFO: No log entries flagged with FailQuest for {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
                     }
                 }
 
@@ -72,10 +172,10 @@ namespace RequiemExperience
                     {
                         if (alias.Name != null && alias.Name.Equals(condition, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            ConditionFloat cond = new ConditionFloat();
+                            ConditionFloat cond = new();
                             cond.CompareOperator = CompareOperator.NotEqualTo;
                             cond.ComparisonValue = 1.0f;
-                            FunctionConditionData func = new FunctionConditionData();
+                            FunctionConditionData func = new();
                             func.Function = Condition.Function.GetInCurrentLocFormList;
                             func.ParameterOneRecord.SetTo(radiantExcl);
                             cond.Data = func;
@@ -86,7 +186,12 @@ namespace RequiemExperience
 
                 if (quests != null)
                 {
-                    quests?.Append(quest.EditorID + ";" + quest.Type + ";\"" + (quest.Name?.ToString() ?? "null").Replace('"', '-') + "\";" + quest.Objectives.Count + ";\"");
+                    quests?.Append(
+                        "[" + quest.FormKey.ModKey.FileName + "] XX" + quest.FormKey.IDString() + ";"
+                        + quest.EditorID + ";" + quest.Type
+                        + ";\"" + (quest.Name?.ToString() ?? "null").Replace('"', '-')
+                        + "\";" + quest.Objectives.Count + ";\""
+                    );
                     foreach (var obj in quest.Objectives)
                     {
                         quests?.Append((obj.DisplayText?.ToString() ?? "null").Replace('"', '-') + ", ");

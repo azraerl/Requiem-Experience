@@ -9,16 +9,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="resources\npcs.txt" />
-    <None Remove="resources\quests.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ExpressiveParser" Version="2.4.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
-    <PackageReference Include="Mutagen.Bethesda" Version="0.30.6" />
-    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.19.2" />
+    <PackageReference Include="Mutagen.Bethesda" Version="0.33.2" />
+    <PackageReference Include="Mutagen.Bethesda.Synthesis" Version="0.20.4" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
