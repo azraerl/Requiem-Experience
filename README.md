@@ -2,6 +2,11 @@
 
 This is an auto-patcher which is meant to create patch for Experience mod, to be used along with Requiem - or any other overhaul which makes Skyrim world to be un-levelled.
 
+# How to run patcher?
+Please follow steps in [Synthesis wiki](https://github.com/Mutagen-Modding/Synthesis/wiki/Installation)
+
+# Patcher logic and settings
+
 It takes care of few things:
 * Adjusts quest types for various mods to reduce/increase XP - would only affect quests which present in your load order:
   * Vanilla Skyrim: reduces XP from Helgen & Whiterun main quests;
