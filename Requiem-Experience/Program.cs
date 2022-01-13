@@ -54,11 +54,11 @@ namespace RequiemExperience
             {
                 case General.ExperiencePreset.TrueUnlevelled:
                     Console.WriteLine($@"Writing {unlvldINI} preset to {outputPath}");
-                    File.Copy(unlvldINI, outputPath, true);
+                    File.WriteAllLines(outputPath, File.ReadAllLines(unlvldINI).Select(x => Regex.Replace(x, @"\s*;.*$", "")));
                     break;
                 case General.ExperiencePreset.ExtraRewarding:
                     Console.WriteLine($@"Writing {rewardINI} preset to {outputPath}");
-                    File.Copy(rewardINI, outputPath, true);
+                    File.WriteAllLines(outputPath, File.ReadAllLines(rewardINI).Select(x => Regex.Replace(x, @"\s*;.*$", "")));
                     break;
             }
         }
