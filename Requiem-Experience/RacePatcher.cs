@@ -138,33 +138,6 @@ namespace RequiemExperience
 
                     if (unique && level > 0)
                     {
-                        /*var otherFormLists = state.LoadOrder.PriorityOrder.WinningOverrides<IFormListGetter>()
-                            .Where(x => x.ContainedFormLinks.Any(y => race.FormKey == y.FormKey))
-                            .Select(x => state.PatchMod.FormLists.GetOrAddAsOverride(x));
-
-                        EditorID = EditorID + "__" + npc.EditorID;
-                        var newRace = state.PatchMod.Races.AddNew(EditorID);
-                        newRace.DeepCopyIn(race, out var errorMask, new Race.TranslationMask(defaultOn: true)
-                        {
-                            EditorID = false
-                        });
-                        newRace.MorphRace.SetTo(!race.MorphRace.IsNull ? race.MorphRace : race.AsNullableLink());
-                        newRace.AttackRace.SetTo(!race.AttackRace.IsNull ? race.AttackRace : race.AsNullableLink());
-                        newRace.ArmorRace.SetTo(!race.ArmorRace.IsNull ? race.ArmorRace : race.AsNullableLink());
-                        if(newRace.Flags.HasFlag(Race.Flag.Playable))
-                        {
-                            newRace.Flags ^= Race.Flag.Playable;
-                        }
-                        var patchN = state.PatchMod.Npcs.GetOrAddAsOverride(npc);
-                        patchN.Race.SetTo(newRace);
-                        foreach (var otherFormList in otherFormLists)
-                        {
-                            var formLinks = otherFormList.ContainedFormLinks;
-                            if (formLinks.Any(x => x.FormKey == race.FormKey))
-                            {
-                                otherFormList.Items.Add(newRace);
-                            }
-                        }*/
                         if (!actorPlugins.ContainsKey(npc.FormKey.ModKey.ToString()))
                         {
                             actorPlugins.Add(npc.FormKey.ModKey.ToString(), new());

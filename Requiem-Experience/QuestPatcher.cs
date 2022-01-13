@@ -154,6 +154,11 @@ namespace RequiemExperience
                                 }
                             }
                         }
+
+                        if(patchQ.Name == null || patchQ.Name == "" )
+                        {
+                            Console.WriteLine($@"WARN: Quest without name {quest.EditorID} [{quest.FormKey.ModKey}:{quest.FormKey.ID:X}]");
+                        }
                     }
 
                     if (!foundCmpl)
