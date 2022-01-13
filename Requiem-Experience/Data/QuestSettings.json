@@ -26,8 +26,6 @@
 		"dunHillgrundsTombQST": "SideQuest",
 		"dunForelhostQST": "SideQuest",
 
-		"Freeform.*": "SideQuest",
-
 		"MGR21": "Misc",
 		"MGR30": "SideQuest",
 		"DBrecurring": "Misc",
