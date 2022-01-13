@@ -80,6 +80,7 @@
 	"CompleteFlags": {
 		"_M_Quest.*": [100],
 		"BQ0[1234]" : [200],
+		"dunGauldursonQST": [255],
 		"Freeform.*": [100, 200],
 		"FreeformMarkarth[OEJ]": [20],
 		"FreeformDragonBridge01": [20, 25],
