@@ -1,8 +1,8 @@
 {
-  "Nickname": "Requiem-Experience",
+  "Nickname": "Arkay's Commmandment - Requiem-Experience",
   "Visibility": "Visible",
-  "OneLineDescription": "Patcher for Experience mod, most suitable for Requiem",
-  "LongDescription": "Patcher for Experience mod, desgined for Requiem - or simply un-levelled world. Generates Races XP csv basing on load order and set of rules, if necessary creates unique duplicated races for unique NPCs; Generates Quest patch with quest type adjustments; Does optional adjustments to Skills/Skill Books.",
+  "OneLineDescription": "Patcher for Experience mod, most suitable for Arkay's Commandment",
+  "LongDescription": "Extend's Azraerl's Requiem-Experience Patcher, customizing it for Arkay's Commandment.",
   "PreferredAutoVersioning": "Default",
   "RequiredMods": []
 }
