@@ -26,7 +26,8 @@
 		"DLC1EncGargoyleSummon2"
 	],
 	"Unique": [
-		".*SlaughterfishGiant.*",
+		"REQ_SlaughterfishHuge.*",
+		"REQ_SlaughterfishGiantDaedric.*",
 		".*MudcrabGigantic",
 		".*GorakTheTrollslayer",
 		".*JohnCleese",
@@ -46,7 +47,16 @@
 		"DBM_dunWindPassWindcallerSpiderBoss",
 		"DLC2dunHorkerIslandEncHorker",
 		"VampireVigilantTolan",
-		".*Boss.*"
+		".*Boss.*",
+		"EncMudcrabGiant.*",
+		".*EncMudcrabMedium.*",
+		"EncMudcrabLarge.*",
+		"dunHunterMudcrab",
+		"DLC2EncMudcrabSolstheim",
+		".*REQ_Actor_MudcrabMediumBigger.*",
+		"DLC2dunNorthshoreLandingCrabBoss",
+		"REQ_Actor_Conjuration_SpiritMudcrab",
+		"REQ_Actor_Conjuration_SpiritMudcrab_Potent"
 	],
 	"Groups": {
 		"StopRacism": [ "Argonian", "Breton", "DarkElf", "HighElf", "Imperial", "Khajiit", "Nord", "Orc", "Redguard", "WoodElf" ]
