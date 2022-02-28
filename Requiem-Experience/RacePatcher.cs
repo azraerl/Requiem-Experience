@@ -1,16 +1,15 @@
-﻿using MathNet.Numerics.Statistics;
-using Mutagen.Bethesda;
-using Mutagen.Bethesda.Plugins;
-using Mutagen.Bethesda.Skyrim;
-using Mutagen.Bethesda.Synthesis;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
+using MathNet.Numerics.Statistics;
+using Mutagen.Bethesda;
+using Mutagen.Bethesda.Skyrim;
+using Mutagen.Bethesda.Synthesis;
+using Newtonsoft.Json.Linq;
 
 namespace RequiemExperience
 {
@@ -27,7 +26,7 @@ namespace RequiemExperience
                 return any;
             }
 
-            StringBuilder? npcs = Settings.General.Debug ? new StringBuilder(500*1024) : null;
+            StringBuilder? npcs = Settings.General.Debug ? new StringBuilder(500 * 1024) : null;
             npcs?.Append("NPC;Race;Level;Comments\r\n");
 
             Expressive.Expression exp = new(Settings.RacesSettings.LevelFormula, Expressive.ExpressiveOptions.IgnoreCaseAll);
@@ -87,7 +86,7 @@ namespace RequiemExperience
                 }
 
                 var ignore = npc.EditorID == null || ignoredNPCs.Any(x => x.IsMatch(npc.EditorID));
-                if( ignore )
+                if (ignore)
                 {
                     npcs?.Append(npc.EditorID + ",?,?,ignored\r\n");
                     continue;
@@ -116,7 +115,7 @@ namespace RequiemExperience
                 {
                     EditorID = race.EditorID;
                     bool overridden = racesOverrs.Any(x => x.Key.Equals(race.EditorID, StringComparison.OrdinalIgnoreCase));
-                    if( overridden )
+                    if (overridden)
                     {
                         npcs?.Append(npc.EditorID + "," + EditorID + "," + level + "," + "overridden" + "\r\n");
                         continue;
@@ -130,7 +129,8 @@ namespace RequiemExperience
                             Console.WriteLine($"INFO: {npc.EditorID} is already unique, regex is an overhead");
                         }
                         unique |= npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique);
-                    } else
+                    }
+                    else
                     {
                         // filter away low level (or levelled) unique flagged NPCs
                         unique = false;
@@ -143,12 +143,12 @@ namespace RequiemExperience
                             actorPlugins.Add(npc.FormKey.ModKey.ToString(), new());
                         }
                         actorPlugins[npc.FormKey.ModKey.ToString()]
-                            .Add($@"; {npc.EditorID} ""{npc.Name}"" | {race.EditorID} : 00{race.FormKey.IDString()}"+
+                            .Add($@"; {npc.EditorID} ""{npc.Name}"" | {race.EditorID} : 00{race.FormKey.IDString()}" +
                                  $@"{Environment.NewLine}00{npc.FormKey.IDString()}={Express(level, exp)}");
                         any = true;
                     }
 
-                    if (level > 0)
+                    if (level > 0 && !unique)
                     {
                         if (!unique && RaceGroupLookup(raceGroups, EditorID, out key, out val))
                         {
@@ -242,9 +242,9 @@ namespace RequiemExperience
             return any;
         }
 
-        static int Express( double level, Expressive.Expression ex )
+        static int Express(double level, Expressive.Expression ex)
         {
-            if( ex == null )
+            if (ex == null)
             {
                 return (int)level;
             }
@@ -297,6 +297,5 @@ namespace RequiemExperience
             }
             return false;
         }
-
     }
 }
